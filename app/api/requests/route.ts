@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       ship_name:    body.ship_name || null,
       sailing_date: body.sailing_date || null,
       sailing_port: body.sailing_port || null,
-      nights:       body.nights ? Number(body.nights) : null,
+      nights: body.nights ? Number(body.nights) : undefined,
 
       category:     body.category || null,
       cabin_name:   body.cabin_name || null,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       fare_desc:    body.fare_desc || null,
       price_type:   body.price_type || null,
       occupancy:    body.occupancy || null,
-      price:        body.price ? Number(body.price) : null,
+      price: body.price ? Number(body.price) : undefined,
 
       itin_desc:    body.itin_desc || null,
       source:       body.source || "website",
