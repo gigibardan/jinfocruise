@@ -4,11 +4,11 @@ import { supabaseAdmin } from "@/lib/supabase";
 // PATCH /api/requests/[id] — update status + note
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
-    const body   = await req.json();
+    const { id } = await params;
+    const body = await req.json();
 
     const allowed = ["status", "admin_notes", "assigned_to"];
     const updates: Record<string, unknown> = {};
@@ -38,15 +38,16 @@ export async function PATCH(
   }
 }
 
-// GET /api/requests/[id] — get single request
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const { data, error } = await supabaseAdmin
     .from("cruise_requests")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 404 });
