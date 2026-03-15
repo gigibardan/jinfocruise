@@ -37,14 +37,15 @@ export function HeroSection() {
         .hero-banner-container {
           position: relative;
           width: 100%;
-          height: 600px;
+          height: 580px;
           overflow: visible;
+          background-color: #EBF4FB;
         }
 
         /* Image is truly full-width, no max-width, no border-radius */
         .hero-banner-bg {
           width: 100%;
-          height: 500px;
+          height: 480px;
           position: relative;
           overflow: hidden;
         }
@@ -167,8 +168,8 @@ export function HeroSection() {
 
         /* Mobile 768px */
         @media (max-width: 768px) {
-          .hero-banner-container { height: 350px; }
-          .hero-banner-bg { height: 300px; }
+          .hero-banner-container { height: 330px; background-color: #EBF4FB; }
+          .hero-banner-bg { height: 230px; }
           .hero-main-text { font-size: 2.5em; top: 5%; }
           .hero-hand-pointer { width: 40px; bottom: 61%; }
           .hero-price-text { font-size: 1.8em; bottom: 52%; }
@@ -192,8 +193,8 @@ export function HeroSection() {
         }
         /* Mobile 480px */
         @media (max-width: 480px) {
-          .hero-banner-container { height: 240px; }
-          .hero-banner-bg { height: 200px; }
+          .hero-banner-container { height: 220px; background-color: #EBF4FB; }
+          .hero-banner-bg { height: 140px; }
           .hero-main-text { font-size: 1.8em; top: 2%; }
           .hero-hand-pointer { width: 30px; bottom: 61%; }
           .hero-price-text { font-size: 1.3em; bottom: 51%; }
@@ -239,11 +240,11 @@ export function HeroSection() {
         {/* Preț minim */}
         <div className="hero-price-text">Preț minim</div>
 
-        {/* CTA — scroll to search section */}
+        {/* CTA — scroll to search section, sits just below "Preț minim", above cards */}
         <div
           style={{
             position: "absolute",
-            bottom: "115px",
+            bottom: "160px",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 15,
@@ -292,8 +293,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Spacer for card overflow */}
-      <div style={{ height: "100px" }} />
+      {/* Spacer — minimal, colored to match SearchSection (#EBF4FB) */}
+      <div style={{ height: "10px", backgroundColor: "#EBF4FB" }} />
     </>
   );
 }
