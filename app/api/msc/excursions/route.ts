@@ -32,15 +32,15 @@ async function setCache(key: string, data: unknown) {
 
 const MSC_HEADERS = {
     "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "ro-RO,ro;q=0.9,en-GB;q=0.8",
-    "msc-locale": "ro_RO",
-    "msc-language-code": "ron",
-    "msc-country-code": "RO",
+    "Accept-Language": "en-US,en;q=0.9",
+    "msc-locale": "en_GB",
+    "msc-language-code": "eng",
+    "msc-country-code": "GB",
     "msc-currency-code": "EUR",
     "msc-conversation-id": crypto.randomUUID(),
     "Origin": "https://www.msccruises.eu",
     "Referer": "https://www.msccruises.eu/",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 };
 
 export async function POST(req: NextRequest) {
