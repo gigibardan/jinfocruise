@@ -70,8 +70,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ro" suppressHydrationWarning>
-      <body className={`${geist.className} antialiased bg-white text-gray-900`}>
-        <Header />
+      <body className={`${geist.className} antialiased bg-white text-gray-900`} suppressHydrationWarning>        <Header />
         <main className="min-h-screen">
           {children}
         </main>

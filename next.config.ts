@@ -9,6 +9,8 @@ const nextConfig = {
         protocol: "https",
         hostname: "upload.wikimedia.org",
       },
+      { protocol: "https", hostname: "assets.msccruises.com" },
+      { protocol: "https", hostname: "www.msccruises.com" },
     ],
   },
 };
