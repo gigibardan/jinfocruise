@@ -186,6 +186,10 @@ export function HeroSection() {
           .hero-card-container { gap: 5px; padding: 0; }
         }
 
+        /* Hide CTA on very small screens */
+        @media (max-width: 480px) {
+          .hero-cta-btn { display: none; }
+        }
         /* Mobile 480px */
         @media (max-width: 480px) {
           .hero-banner-container { height: 240px; }
@@ -234,6 +238,42 @@ export function HeroSection() {
 
         {/* Preț minim */}
         <div className="hero-price-text">Preț minim</div>
+
+        {/* CTA — scroll to search section */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "115px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 15,
+          }}
+          className="hero-cta-btn"
+        >
+          <a
+            href="#cauta-croaziere"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              backgroundColor: "#185FA5",
+              color: "white",
+              fontWeight: "bold",
+              padding: "12px 28px",
+              borderRadius: "12px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              textDecoration: "none",
+              fontSize: "1em",
+              whiteSpace: "nowrap",
+              transition: "background-color 0.2s",
+            }}
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+            Caută Croaziere
+          </a>
+        </div>
 
         {/* Cards + explanation — max-width 1200px, centered */}
         <div className="hero-card-container">
