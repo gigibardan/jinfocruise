@@ -13,6 +13,7 @@ import {
   type CabinType,
 } from "@/lib/msc-mappings";
 import { getHighlightItems } from "@/lib/msc-items";
+import { CruiseLoader } from "@/components/ui/CruiseLoader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -537,11 +538,10 @@ function Results() {
 
         <main className="flex-1 min-w-0">
           {loading && (
-            <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-gray-500">Se caută croazierele disponibile...</p>
-              <p className="text-gray-400 text-sm">Aceasta poate dura câteva secunde</p>
-            </div>
+            <CruiseLoader
+              message="Se caută croazierele disponibile..."
+              submessage="Aceasta poate dura câteva secunde"
+            />
           )}
 
           {!loading && error && (
@@ -595,7 +595,7 @@ export default function ResultsPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <CruiseLoader message="Se pregătesc rezultatele..." submessage="Un moment, te rugăm" />
       </div>
     }>
       <Results />
