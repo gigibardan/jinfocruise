@@ -4,6 +4,8 @@ import { DestinationsSection } from "@/components/home/DestinationsSection";
 import { WhyUsSection } from "@/components/home/WhyUsSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { ToursSection } from "@/components/home/ToursSection";
+import { FaqSection } from "@/components/home/FaqSection";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -29,6 +31,9 @@ export default function HomePage() {
 
       {/* 5. Testimoniale cu paginare */}
       <TestimonialsSection />
+
+      <FaqSection />        
+
 
       {/* 6. Banner circuite turistice Jinfo Tours */}
       <ToursSection />
