@@ -49,7 +49,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Închide meniu la schimbare rută
   useEffect(() => {
     setMobileOpen(false);
     setOpenDropdown(null);
@@ -61,27 +60,28 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
             ? "bg-white shadow-md border-b border-gray-100"
             : "bg-white/95 backdrop-blur-sm border-b border-gray-100"
-          }`}
+        }`}
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+            {/* ── Logo ── */}
+            <Link href="/" className="flex items-center flex-shrink-0">
               <Image
                 src="/images/logojinfocruise.png"
-                alt="JinfoCruise"
-                width={120}
-                height={32}
-                className="h-8 w-auto object-contain max-w-[120px]"
+                alt="JinfoCruise — Croaziere MSC România"
+                width={160}
+                height={42}
+                className="h-10 w-auto object-contain"
                 priority
               />
             </Link>
 
-            {/* Desktop nav */}
+            {/* ── Desktop nav ── */}
             <nav className="hidden lg:flex items-center gap-0.5">
               {NAV_ITEMS.map((item) => (
                 <div
@@ -95,20 +95,21 @@ export function Header() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                      className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-800 hover:text-[#185FA5] rounded-lg hover:bg-blue-50 transition-colors"
                     >
                       {item.label}
-                      <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </a>
                   ) : (
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-                          ? "text-blue-600 bg-blue-50"
-                          : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                        }`}
+                      className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        isActive(item.href)
+                          ? "text-[#185FA5] bg-blue-50"
+                          : "text-gray-800 hover:text-[#185FA5] hover:bg-blue-50"
+                      }`}
                     >
                       {item.label}
                       {item.children && (
@@ -130,7 +131,7 @@ export function Header() {
                           <Link
                             key={child.label}
                             href={child.href}
-                            className="block px-4 py-2.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="block px-4 py-2.5 text-sm text-gray-700 hover:text-[#185FA5] hover:bg-blue-50 transition-colors"
                           >
                             {child.label}
                           </Link>
@@ -138,7 +139,7 @@ export function Header() {
                         <div className="border-t border-gray-100 mt-1 pt-1">
                           <Link
                             href={item.href}
-                            className="block px-4 py-2 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                            className="block px-4 py-2 text-xs text-[#185FA5] hover:text-[#003366] font-medium"
                           >
                             Vezi toate →
                           </Link>
@@ -150,39 +151,26 @@ export function Header() {
               ))}
             </nav>
 
-            {/* CTA + Mobile toggle */}
-            <div className="flex items-center gap-2">
-              <Link
-                href="/cruises/search"
-                className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            {/* ── Mobile burger only ── */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              aria-label="Meniu"
+            >
+              {mobileOpen ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Caută croaziere
-              </Link>
-
-              {/* Mobile burger */}
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Meniu"
-              >
-                {mobileOpen ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                )}
-              </button>
-            </div>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* ── Mobile menu ── */}
         {mobileOpen && (
           <div className="lg:hidden border-t border-gray-100 bg-white max-h-[80vh] overflow-y-auto">
             <nav className="px-4 py-3 flex flex-col gap-1">
@@ -193,10 +181,10 @@ export function Header() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-800 hover:text-[#185FA5] hover:bg-blue-50 rounded-lg transition-colors"
                     >
                       {item.label}
-                      <svg className="w-3.5 h-3.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3.5 h-3.5 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </a>
@@ -204,10 +192,11 @@ export function Header() {
                     <>
                       <button
                         onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-                            ? "text-blue-600 bg-blue-50"
-                            : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                          }`}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                          isActive(item.href)
+                            ? "text-[#185FA5] bg-blue-50"
+                            : "text-gray-800 hover:text-[#185FA5] hover:bg-blue-50"
+                        }`}
                       >
                         {item.label}
                         {item.children && (
@@ -225,7 +214,7 @@ export function Header() {
                             <Link
                               key={child.label}
                               href={child.href}
-                              className="block py-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                              className="block py-2 text-sm text-gray-700 hover:text-[#185FA5] transition-colors"
                             >
                               {child.label}
                             </Link>
@@ -241,9 +230,12 @@ export function Header() {
               <div className="mt-3 pt-3 border-t border-gray-100">
                 <Link
                   href="/cruises/search"
-                  className="flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-semibold px-4 py-3 rounded-xl w-full"
+                  className="flex items-center justify-center gap-2 bg-[#185FA5] hover:bg-[#144e8a] text-white text-sm font-semibold px-4 py-3 rounded-xl w-full transition-colors"
                 >
-                  🔍 Caută croaziere
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Caută croaziere
                 </Link>
               </div>
             </nav>
