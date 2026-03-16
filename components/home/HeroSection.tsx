@@ -244,7 +244,7 @@ export function HeroSection() {
         <div
           style={{
             position: "absolute",
-            bottom: "160px",
+            bottom: "220px",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 15,
