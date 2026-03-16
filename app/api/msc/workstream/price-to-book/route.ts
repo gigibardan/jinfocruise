@@ -7,22 +7,22 @@ export async function POST(req: NextRequest) {
       cruiseId,
       categoryCode,
       promotionCode,
-      packageCode,
-      experienceCode,  // ex: EXP2B, EXP1, EXP3B, EXPYCB
+      packageCode,      // PackageCode pentru EXP item — din SearchCruises
+      experienceCode,   // ex: EXP2B, EXP1, EXP3B, EXPYCB
+      startDate,        // ex: "2026-04-21"
+      endDate,          // ex: "2026-04-27"
       noAdults = 2,
       noChildren = 0,
-      adults = [],     // [{ age: 30, dob: "1994-08-25", country: "ROU" }]
-      startDate,       // ex: "2026-04-21"
+      adults = [],      // [{ age: 30, dob: "1990-01-01", country: "ROU" }]
     } = await req.json();
 
-    if (!cruiseId || !categoryCode || !promotionCode || !packageCode || !experienceCode || !startDate) {
+    if (!cruiseId || !categoryCode || !promotionCode || !packageCode || !experienceCode || !startDate || !endDate) {
       return NextResponse.json(
-        { error: "cruiseId, categoryCode, promotionCode, packageCode, experienceCode, startDate sunt obligatorii" },
+        { error: "cruiseId, categoryCode, promotionCode, packageCode, experienceCode, startDate, endDate sunt obligatorii" },
         { status: 400 }
       );
     }
 
-    // Construim PersonNos pentru adulți
     const adultPersonNos = Array.from({ length: noAdults }, (_, i) => i + 1);
     const personNosStr = adultPersonNos.join(",");
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return `
       <PersonNos>
         <PersonNo>${n}</PersonNo>
-        <AdultAge>${adult.age || 30}</AdultAge>
+        <AdultAge>${adult.age || 35}</AdultAge>
         <DateOfBirth>${adult.dob || "1990-01-01"}</DateOfBirth>
         <CountryCode>${adult.country || "ROU"}</CountryCode>
       </PersonNos>`;
@@ -43,15 +43,19 @@ export async function POST(req: NextRequest) {
     <AgencyID>RO000043</AgencyID>
     <AgencyReference/>
     <AgentID>RO000043</AgentID>
-    <BookingChannel>XML</BookingChannel>
+    <BookingChannel>BEE</BookingChannel>
     <BookingContactName>JINFO</BookingContactName>
     <BookingNo/>
+    <ConsortiumCode/>
     <BookingCurrencyCode>EUR</BookingCurrencyCode>
     <GroupID/>
     <LanguageCode>ENG</LanguageCode>
     <LockBooking/>
     <MarketCode>ROM</MarketCode>
     <OfficeCode>ROM</OfficeCode>
+    <Profile/>
+    <SecurityGroup/>
+    <UserGroup/>
   </BookingContext>
   <PricingShopInfo>
     <NoAdults>${noAdults}</NoAdults>
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
           <ItemCode>${experienceCode}</ItemCode>
           <CategoryCode/>
           <StartDate>${startDate}</StartDate>
-          <EndDate>${startDate}</EndDate>
+          <EndDate>${endDate}</EndDate>
           <PersonNo>${personNosStr}</PersonNo>
         </PackageItemDetails>
       </PackageItemDefinition>
@@ -92,31 +96,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    // Extragem datele esențiale
     const get = (tag: string) =>
-      xmlResponse.match(new RegExp(`<${tag}>(.*?)<\/${tag}>`))?.[1] ?? null;
+      xmlResponse.match(new RegExp(`<${tag}>(.*?)<\\/${tag}>`))?.[1] ?? null;
 
-    const bookingNo = get("BookingNo");
-    const totalGross = get("TotalGrossPrice");
-    const totalNet = get("TotalNetPrice");
-    const totalCommission = get("TotalCommission");
-    const depositDue = get("DepositAmountDue");
-    const depositDate = get("DepositDueDate");
-    const finalPayDate = get("FinalPaymentDate");
-    const paxType = get("PaxType");
+    // Extragem PortChargesAmt din primul ComponentPrice (CRU)
+    const portChargesMatch = xmlResponse.match(/<ItemType>CRU<\/ItemType>[\s\S]*?<PortChargesAmt>(.*?)<\/PortChargesAmt>/);
+    const portCharges = parseFloat(portChargesMatch?.[1] || "0");
 
     return NextResponse.json({
       success: true,
-      bookingNo,
       pricing: {
-        totalGross: parseFloat(totalGross || "0"),
-        totalNet: parseFloat(totalNet || "0"),
-        totalCommission: parseFloat(totalCommission || "0"),
-        depositDue: parseFloat(depositDue || "0"),
-        depositDate,
-        finalPaymentDate: finalPayDate,
+        totalGross: parseFloat(get("TotalGrossPrice") || "0"),
+        totalNet: parseFloat(get("TotalNetPrice") || "0"),
+        totalCommission: parseFloat(get("TotalCommission") || "0"),
+        depositDue: parseFloat(get("DepositAmountDue") || "0"),
+        depositDate: get("DepositDueDate"),
+        finalPaymentDate: get("FinalPaymentDate"),
+        portCharges,
       },
-      paxType,
       rawXml: process.env.NODE_ENV === "development" ? xmlResponse : undefined,
     });
 
