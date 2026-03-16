@@ -1,14 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 
-// 1. Definim tipul pentru un link individual
 interface FooterLink {
   label: string;
   href: string;
-  external?: boolean; // Semnul întrebării înseamnă că este opțional
+  external?: boolean;
 }
 
-// 2. Definim tipul pentru o secțiune din footer
 interface FooterSection {
   title: string;
   links: FooterLink[];
@@ -38,22 +36,14 @@ const FOOTER_LINKS: Record<string, FooterSection> = {
     ],
   },
   informatii: {
-    title: "Informații",
+    title: "Informații utile",
     links: [
       { label: "Cum rezerv", href: "/cum-rezerv" },
       { label: "Despre noi", href: "/despre-noi" },
       { label: "Blog", href: "/blog" },
       { label: "Contact", href: "/contact" },
-      { label: "ANPC", href: "https://anpc.ro", external: true },
-    ],
-  },
-  servicii: {
-    title: "Alte servicii",
-    links: [
       { label: "Circuite turistice", href: "https://jinfotours.ro", external: true },
-      { label: "Bilete de avion", href: "https://jinfotours.ro/bilete-avion", external: true },
-      { label: "Safari", href: "https://jinfotours.ro/safari", external: true },
-      { label: "Contract cu turistul", href: "/contract-turist" },
+      { label: "ANPC", href: "https://anpc.ro", external: true },
     ],
   },
 };
@@ -92,48 +82,65 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-950 text-slate-400">
+    <footer className="bg-[#0a1628] text-slate-400">
+
+      {/* ── Main grid ── */}
       <div className="max-w-7xl mx-auto px-4 pt-12 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
-          
-          <div className="lg:col-span-2">
-            <div className="mb-6">
-              <Image
-                src="/images/logojinfocruise.png"
-                alt="JinfoCruise"
-                width={160}
-                height={40}
-                className="brightness-0 invert opacity-90 object-contain"
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+
+          {/* Col 1 — Logo + contact */}
+          <div className="md:col-span-2 lg:col-span-1">
+            {/* Logo — folosim versiunea albă direct din PNG sau fallback text */}
+            <div className="mb-5">
+              <Link href="/" aria-label="JinfoCruise — Acasă">
+                <Image
+                  src="/images/logojinfocruise.png"
+                  alt="JinfoCruise — Croaziere MSC România"
+                  width={150}
+                  height={40}
+                  className="h-9 w-auto object-contain"
+                  style={{ filter: "brightness(0) invert(1)" }}
+                />
+              </Link>
             </div>
-            <p className="text-sm leading-relaxed mb-6 max-w-sm">
-              Specialist în croaziere MSC în România. Partener de încredere pentru vacanțe memorabile pe mare.
+
+            <p className="text-sm leading-relaxed mb-5 text-slate-400 max-w-xs">
+              Specialist în croaziere MSC în România. Partener de încredere pentru vacanțe memorabile pe mare din 1990.
             </p>
-            
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-3">
-                <span className="text-blue-500">📍</span>
+
+            {/* Contact */}
+            <div className="space-y-2.5 text-sm mb-6">
+              <div className="flex items-start gap-2.5">
+                <svg className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
                 <span>Str. Jules Michelet, nr. 1, București</span>
               </div>
-              <a href="tel:+40742220643" className="flex items-center gap-3 hover:text-white transition-colors">
-                <span className="text-blue-500">📞</span>
+              <a href="tel:+40742220643" className="flex items-center gap-2.5 hover:text-white transition-colors">
+                <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
                 <span>0742 220 643</span>
               </a>
-              <a href="mailto:croaziere@jinfotours.ro" className="flex items-center gap-3 hover:text-white transition-colors">
-                <span className="text-blue-500">✉️</span>
+              <a href="mailto:croaziere@jinfotours.ro" className="flex items-center gap-2.5 hover:text-white transition-colors">
+                <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
                 <span>croaziere@jinfotours.ro</span>
               </a>
             </div>
 
-            <div className="flex gap-3 mt-8">
+            {/* Social */}
+            <div className="flex gap-2">
               {SOCIAL.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-full bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white transition-all"
                   aria-label={s.label}
+                  className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 hover:border-blue-500 hover:text-white flex items-center justify-center transition-all"
                 >
                   {s.icon}
                 </a>
@@ -141,45 +148,50 @@ export function Footer() {
             </div>
           </div>
 
-          {Object.entries(FOOTER_LINKS).map(([key, section]) => (
-            <div key={key}>
-              <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-5">
-                {section.title}
-              </h3>
-              <ul className="space-y-3">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    {/* TypeScript acum știe că 'external' există pe link */}
-                    {link.external ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm hover:text-white transition-colors flex items-center group"
-                      >
-                        {link.label}
-                        <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
-                          ↗
-                        </span>
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-sm hover:text-white transition-colors"
-                      >
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Cols 2-4 — link sections */}
+          {/* Pe mobil: 2 coloane din cele 3 */}
+          <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-3 lg:grid-cols-3">
+            {Object.entries(FOOTER_LINKS).map(([key, section]) => (
+              <div key={key}>
+                <h3 className="text-white font-bold text-xs uppercase tracking-widest mb-4">
+                  {section.title}
+                </h3>
+                <ul className="space-y-2.5">
+                  {section.links.map((link) => (
+                    <li key={link.label}>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group"
+                        >
+                          {link.label}
+                          <svg className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                          </svg>
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-sm text-slate-400 hover:text-white transition-colors"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
         </div>
 
-        <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] uppercase tracking-widest font-medium">
+        {/* ── Bottom bar ── */}
+        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-[11px] uppercase tracking-widest font-medium text-slate-500">
           <p>© {year} Jinfo Tours SRL — Toate drepturile rezervate</p>
-          <div className="flex gap-6">
+          <div className="flex gap-5">
             <Link href="/politica-confidentialitate" className="hover:text-white transition-colors">Confidențialitate</Link>
             <Link href="/politica-cookies" className="hover:text-white transition-colors">Cookies</Link>
             <Link href="/termeni-conditii" className="hover:text-white transition-colors">Termeni</Link>
