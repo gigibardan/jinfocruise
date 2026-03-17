@@ -35,7 +35,7 @@ export interface BookingFlowProps {
   priceCode?: string;
   shipCode?: string;
   shipName?: string;
-  serviceChargeCode?: string; 
+  serviceChargeCode?: string;
   onClose: () => void;
 }
 
@@ -251,7 +251,7 @@ function StepConfirm({
   pricePerPax: number;
   shipCode: string;
   shipName: string;
-  serviceChargeCode: string;  
+  serviceChargeCode: string;
   onConfirm: (bookingNo: string, gross: number) => void;
   onBack: () => void;
 }) {
@@ -317,7 +317,7 @@ function StepConfirm({
           bookOrQuote: "Q",
           cruiseId, categoryCode, cabinNo: cabin.cabinNo,
           promotionCode, packageCode, experienceCode,
-          startDate, endDate, noAdults, serviceChargeCode, 
+          startDate, endDate, noAdults, serviceChargeCode,
           passengers: [{
             firstName: contact.firstName,
             lastName: contact.lastName,
@@ -338,9 +338,9 @@ function StepConfirm({
         body: JSON.stringify({
           bookingNoMsc: bookData.bookingNo,
           cruiseId,
-          shipCode,        
-          shipName,        
-          sailingDate: startDate,  
+          shipCode,
+          shipName,
+          sailingDate: startDate,
           categoryCode,
           categoryName,
           cabinNo: cabin.cabinNo,
@@ -359,6 +359,28 @@ function StepConfirm({
           leadDob: contact.dob || null,
         }),
       }).catch(e => console.error("Eroare salvare booking:", e));
+
+      // Trimite emailuri
+      fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingNoMsc: bookData.bookingNo,
+          cruiseId,
+          shipName,
+          sailingDate: startDate,
+          categoryName,
+          categoryCode,
+          cabinNo: cabin.cabinNo,
+          noAdults,
+          grossAmount: pricing?.totalGross ?? 0,
+          portCharges: pricing?.portCharges ?? 0,
+          depositDue: pricing?.depositDue ?? 0,
+          leadFirstName: contact.firstName,
+          leadLastName: contact.lastName,
+          leadEmail: contact.email,
+        }),
+      }).catch(e => console.error("Eroare email:", e));
 
       onConfirm(bookData.bookingNo, pricing?.totalGross ?? 0);
     } catch (e) {
@@ -500,7 +522,7 @@ export function BookingFlow({
   priceCode: priceCodeProp,
   shipCode = "",
   shipName = "",
-  serviceChargeCode = "SC2526ME",  
+  serviceChargeCode = "SC2526ME",
   onClose,
 }: BookingFlowProps) {
   const [step, setStep] = useState(1);
@@ -558,7 +580,7 @@ export function BookingFlow({
           pricePerPax={pricePerPax}
           shipCode={shipCode}
           shipName={shipName}
-          serviceChargeCode={serviceChargeCode} 
+          serviceChargeCode={serviceChargeCode}
           onConfirm={(bNo, gross) => {
             setBookingNo(bNo);
             setGrossAmount(gross);
