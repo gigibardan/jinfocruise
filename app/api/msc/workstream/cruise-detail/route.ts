@@ -56,6 +56,15 @@ const CATEGORY_NAMES: Record<string, string> = {
   YC2: "YC Deluxe", YCT: "YC Top",
 };
 
+function decodeXml(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+}
+
 function getVal(xml: string, tag: string): string {
   return xml.match(new RegExp(`<${tag}>([^<]*)<\\/${tag}>`))?.[1]?.trim() ?? "";
 }
@@ -154,13 +163,13 @@ function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
 
     const newCat: WorkstreamCategory = {
       category,
-      categoryName: CATEGORY_NAMES[category] ?? category,
+      categoryName: decodeXml(CATEGORY_NAMES[category] ?? category),
       priceCode: getVal(block, "PriceCode"),
       priceDesc: getVal(block, "PriceDesc"),
       priceType,
       packageCode,
       experienceCode,
-      experienceName,
+      experienceName: decodeXml(experienceName),
       cabinsAvailable: getInt(block, "CabinsAvailable"),
       allowedOccupancies,
       firstPaxPrice,
