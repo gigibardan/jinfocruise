@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { RequestForm } from "@/components/cruise/RequestForm";
 import { ItinerarySection } from "@/components/cruise/ItinerarySection";
 import { ExcursionsSection } from "@/components/cruise/ExcursionsSection";
+import { BookingFlow } from "@/components/booking/BookingFlow";
 import Image from "next/image";
 import {
   getCabinInfo,
@@ -24,6 +24,7 @@ import {
 } from "@/lib/msc-mappings";
 import { getMandatoryItems, getOptionalItems } from "@/lib/msc-items";
 import { getShipInfo } from "@/lib/msc-ships";
+import { getPackageInfo } from "@/lib/msc-workstream";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,7 +79,9 @@ function formatDate(str: string): string {
   const parts = str.includes("/") ? str.split("/") : null;
   if (parts?.length === 3) {
     const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-    return isNaN(d.getTime()) ? str : d.toLocaleDateString("ro-RO", { day: "2-digit", month: "long", year: "numeric" });
+    return isNaN(d.getTime())
+      ? str
+      : d.toLocaleDateString("ro-RO", { day: "2-digit", month: "long", year: "numeric" });
   }
   return str;
 }
@@ -98,8 +101,28 @@ function getMinPriceForKey(fares: RawFare[], occKey: string): number {
   return prices.length > 0 ? Math.min(...prices) : 0;
 }
 
+function getSailingDateISO(sailingDate: string): string {
+  return sailingDate.includes("/")
+    ? sailingDate.split("/").reverse().join("-")
+    : sailingDate;
+}
+
+function getEndDateISO(sailingDate: string, nights: number): string {
+  const d = new Date(getSailingDateISO(sailingDate));
+  d.setDate(d.getDate() + nights);
+  return d.toISOString().split("T")[0];
+}
+
+function getNoAdults(selectedOcc: string): number {
+  if (selectedOcc.includes("4")) return 4;
+  if (selectedOcc.includes("3")) return 3;
+  return 2;
+}
+
 function groupByCabinType(fares: RawFare[]): Record<CabinType, RawFare[]> {
-  const groups: Record<CabinType, RawFare[]> = { interior: [], exterior: [], balcon: [], suite: [] };
+  const groups: Record<CabinType, RawFare[]> = {
+    interior: [], exterior: [], balcon: [], suite: [],
+  };
   fares.forEach((f) => {
     const type = getCabinInfo(f.category).type;
     groups[type].push(f);
@@ -128,7 +151,10 @@ function CabinAccordion({
   }, [] as RawFare[]);
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: isSuite ? `2px solid ${colors.border}` : `0.5px solid #e5e7eb` }}>
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ border: isSuite ? `2px solid ${colors.border}` : `0.5px solid #e5e7eb` }}
+    >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
@@ -152,7 +178,14 @@ function CabinAccordion({
               {minPrice > 0 ? formatPrice(minPrice) : "La cerere"}
             </p>
           </div>
-          <span style={{ color: colors.border, transform: open ? "rotate(90deg)" : "rotate(0deg)", display: "inline-block", transition: "transform 0.2s" }}>›</span>
+          <span
+            style={{
+              color: colors.border,
+              transform: open ? "rotate(90deg)" : "rotate(0deg)",
+              display: "inline-block",
+              transition: "transform 0.2s",
+            }}
+          >›</span>
         </div>
       </button>
 
@@ -167,23 +200,31 @@ function CabinAccordion({
               const mandatory = getMandatoryItems(fare.items);
               const optional = getOptionalItems(fare.items);
               const expiryBdg = getExpiryBadge(fare.optionExpiresDate);
+              const hasBooking = getPackageInfo(fare.category) !== null;
 
               return (
-                <div key={fare.category + fare.fareCode} className="rounded-lg border bg-gray-50 p-3 hover:border-blue-300 hover:bg-blue-50 transition-all" style={{ borderColor: "#e5e7eb" }}>
-
+                <div
+                  key={fare.category + fare.fareCode}
+                  className="rounded-lg border bg-gray-50 p-3 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  style={{ borderColor: "#e5e7eb" }}
+                >
                   {/* Header */}
                   <div className="flex justify-between items-start mb-1.5">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800 leading-tight">{cabinInfo.name}</p>
+                      <p className="text-sm font-semibold text-gray-800 leading-tight">
+                        {cabinInfo.name}
+                      </p>
                       <div className="flex gap-1 mt-0.5 flex-wrap">
-                        {/* Experience badge */}
-                        <span className="text-xs px-1.5 py-0.5 rounded font-semibold"
-                          style={{ backgroundColor: expInfo.bgColor, color: expInfo.textColor }}>
+                        <span
+                          className="text-xs px-1.5 py-0.5 rounded font-semibold"
+                          style={{ backgroundColor: expInfo.bgColor, color: expInfo.textColor }}
+                        >
                           {expInfo.label}
                         </span>
-                        {/* Fare type badge */}
-                        <span className="text-xs px-1.5 py-0.5 rounded font-medium"
-                          style={{ backgroundColor: fareInfo.bgColor, color: fareInfo.color }}>
+                        <span
+                          className="text-xs px-1.5 py-0.5 rounded font-medium"
+                          style={{ backgroundColor: fareInfo.bgColor, color: fareInfo.color }}
+                        >
                           {fareInfo.label}
                         </span>
                       </div>
@@ -207,7 +248,11 @@ function CabinAccordion({
                   {mandatory.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-1.5">
                       {mandatory.slice(0, 3).map((item) => (
-                        <span key={item.code} className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-medium" title={item.info?.longDescription}>
+                        <span
+                          key={item.code}
+                          className="text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 font-medium"
+                          title={item.info?.longDescription}
+                        >
                           {item.info?.emoji} {item.info?.description ?? item.code}
                         </span>
                       ))}
@@ -218,7 +263,11 @@ function CabinAccordion({
                   {optional.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-1.5">
                       {optional.slice(0, 2).map((item) => (
-                        <span key={item.code} className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600" title={item.info?.longDescription}>
+                        <span
+                          key={item.code}
+                          className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600"
+                          title={item.info?.longDescription}
+                        >
                           + {item.info?.description ?? item.code}
                         </span>
                       ))}
@@ -244,9 +293,16 @@ function CabinAccordion({
                     ) : (
                       <p className="text-sm text-gray-400 italic">Preț la cerere</p>
                     )}
-                    <button onClick={() => onSelect(fare)} className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
-                      Solicită
-                    </button>
+                    {hasBooking ? (
+                      <button
+                        onClick={() => onSelect(fare)}
+                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
+                      >
+                        Rezervă
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">La cerere</span>
+                    )}
                   </div>
                 </div>
               );
@@ -317,7 +373,10 @@ export default function CruiseDetailPage() {
     setSelectedFare(fare);
     setShowForm(true);
     setTimeout(() => {
-      document.getElementById("request-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("request-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }, 100);
   }, []);
 
@@ -334,7 +393,12 @@ export default function CruiseDetailPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <p className="text-red-600 mb-4">{error || "Croaziera nu a fost găsită"}</p>
-        <button onClick={() => router.back()} className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm">← Înapoi</button>
+        <button
+          onClick={() => router.back()}
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm"
+        >
+          ← Înapoi
+        </button>
       </div>
     </div>
   );
@@ -343,24 +407,38 @@ export default function CruiseDetailPage() {
   const cabinGroups = groupByCabinType(cruise.fares);
   const cabinOrder: CabinType[] = ["interior", "exterior", "balcon", "suite"];
   const itinCountries = cruise.itinDesc.split(",").map((s) => s.trim()).filter(Boolean);
-  const availableOccs = Object.keys(PRICE_KEYS).filter((key) => cruise.fares.some((f) => parsePrice(f.prices[key]) > 0));
+  const availableOccs = Object.keys(PRICE_KEYS).filter((key) =>
+    cruise.fares.some((f) => parsePrice(f.prices[key]) > 0)
+  );
   const expiryBadge = getExpiryBadge(cruise.optionExpiresDate);
 
-  // Taxe informative
   const hscPerNight = getServiceChargeTotal(cruise.serviceCharge ?? undefined);
   const portCharges = getPortCharges(cruise.gft ?? undefined);
   const totalHsc = Math.round(hscPerNight * cruise.nights * 2);
   const totalPch = portCharges * 2;
+
+  const startDate = getSailingDateISO(cruise.sailingDate);
+  const endDate = getEndDateISO(cruise.sailingDate, cruise.nights);
+  const noAdults = getNoAdults(selectedOcc);
 
   return (
     <div className="min-h-screen bg-gray-50">
 
       {/* Hero */}
       <div className="relative h-64 md:h-96 overflow-hidden">
-        <Image src={getShipImage(cruise.shipCd)} alt={cruise.shipName} fill className="object-cover" priority />
+        <Image
+          src={getShipImage(cruise.shipCd)}
+          alt={cruise.shipName}
+          fill
+          className="object-cover"
+          priority
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 max-w-5xl mx-auto">
-          <button onClick={() => router.back()} className="mb-3 text-sm text-white/70 hover:text-white flex items-center gap-1.5 transition-colors">
+          <button
+            onClick={() => router.back()}
+            className="mb-3 text-sm text-white/70 hover:text-white flex items-center gap-1.5 transition-colors"
+          >
             ← Înapoi la rezultate
           </button>
           <div className="flex items-start justify-between flex-wrap gap-3">
@@ -373,12 +451,16 @@ export default function CruiseDetailPage() {
                 &nbsp;·&nbsp; {cruise.nights} nopți &nbsp;·&nbsp; {formatDate(cruise.sailingDate)}
               </p>
               {itinCountries.length > 0 && (
-                <p className="text-white/60 text-xs mt-1">📍 {itinCountries.join(" · ")}</p>
+                <p className="text-white/60 text-xs mt-1">
+                  📍 {itinCountries.join(" · ")}
+                </p>
               )}
             </div>
-            {/* Expiry badge în hero */}
             {expiryBadge && (
-              <div className="px-3 py-1.5 rounded-xl text-sm font-semibold" style={{ backgroundColor: expiryBadge.bgColor, color: expiryBadge.color }}>
+              <div
+                className="px-3 py-1.5 rounded-xl text-sm font-semibold"
+                style={{ backgroundColor: expiryBadge.bgColor, color: expiryBadge.color }}
+              >
                 ⏰ {expiryBadge.text}
               </div>
             )}
@@ -407,14 +489,18 @@ export default function CruiseDetailPage() {
         {cruise.minAgePrimaryPax && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
             <span className="text-amber-500">⚠️</span>
-            <p className="text-amber-700 text-sm">Vârstă minimă pasager principal: <strong>{cruise.minAgePrimaryPax} ani</strong></p>
+            <p className="text-amber-700 text-sm">
+              Vârstă minimă pasager principal: <strong>{cruise.minAgePrimaryPax} ani</strong>
+            </p>
           </div>
         )}
 
         {/* Info taxe */}
         {(totalPch > 0 || totalHsc > 0) && (
           <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-5">
-            <p className="text-xs font-semibold text-blue-800 mb-1.5">ℹ️ Taxe suplimentare per rezervare (2 adulți)</p>
+            <p className="text-xs font-semibold text-blue-800 mb-1.5">
+              ℹ️ Taxe suplimentare per rezervare (2 adulți)
+            </p>
             <div className="flex flex-wrap gap-4">
               {totalPch > 0 && (
                 <div className="text-sm">
@@ -426,22 +512,34 @@ export default function CruiseDetailPage() {
                 <div className="text-sm">
                   <span className="text-blue-600">Taxa servicii (HSC): </span>
                   <span className="font-semibold text-blue-800">~{formatPrice(totalHsc)}</span>
-                  <span className="text-blue-400 text-xs ml-1">({formatPrice(hscPerNight)}/pers/noapte)</span>
+                  <span className="text-blue-400 text-xs ml-1">
+                    ({formatPrice(hscPerNight)}/pers/noapte)
+                  </span>
                 </div>
               )}
             </div>
-            <p className="text-xs text-blue-400 mt-1.5">* Valorile sunt orientative. Prețul final se confirmă la rezervare.</p>
+            <p className="text-xs text-blue-400 mt-1.5">
+              * Valorile sunt orientative. Prețul final se confirmă la rezervare.
+            </p>
           </div>
         )}
 
         {/* Selector ocupare */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-5 border border-gray-100">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Afișează prețuri pentru</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            Afișează prețuri pentru
+          </p>
           <div className="flex flex-wrap gap-2">
             {availableOccs.map((key) => (
-              <button key={key} onClick={() => setSelectedOcc(key)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${selectedOcc === key ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
-                  }`}>
+              <button
+                key={key}
+                onClick={() => setSelectedOcc(key)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                  selectedOcc === key
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+                }`}
+              >
                 {PRICE_KEYS[key]}
               </button>
             ))}
@@ -452,9 +550,17 @@ export default function CruiseDetailPage() {
         <div className="mb-6">
           <h2 className="text-lg font-bold text-gray-800 mb-3">Alege tipul de cabină</h2>
           <div className="flex flex-col gap-3">
-            {cabinOrder.filter((type) => cabinGroups[type]?.length > 0).map((type) => (
-              <CabinAccordion key={type} type={type} fares={cabinGroups[type]} selectedOcc={selectedOcc} onSelect={handleSelectFare} />
-            ))}
+            {cabinOrder
+              .filter((type) => cabinGroups[type]?.length > 0)
+              .map((type) => (
+                <CabinAccordion
+                  key={type}
+                  type={type}
+                  fares={cabinGroups[type]}
+                  selectedOcc={selectedOcc}
+                  onSelect={handleSelectFare}
+                />
+              ))}
           </div>
         </div>
 
@@ -478,43 +584,61 @@ export default function CruiseDetailPage() {
           {shipInfo.highlights.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {shipInfo.highlights.map((h) => (
-                <span key={h} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">✓ {h}</span>
+                <span
+                  key={h}
+                  className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium"
+                >
+                  ✓ {h}
+                </span>
               ))}
             </div>
           )}
         </div>
 
-        {/* ── Itinerariu ──────────────────────────────────────────────── */}
+        {/* Itinerariu */}
         <ItinerarySection cruiseId={cruise.cruiseID} />
 
-        {/* ── Excursii  ──────────────────────────────────────────────── */}
+        {/* Excursii */}
         <ExcursionsSection cruiseId={cruise.cruiseID} />
 
-        {/* Formular */}
-        <div id="request-form" className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 scroll-mt-4">
+        {/* Booking Flow */}
+        <div
+          id="request-form"
+          className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 scroll-mt-4"
+        >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-800">Solicită ofertă</h2>
+            <h2 className="text-lg font-bold text-gray-800">
+              {selectedFare
+                ? `Rezervă — ${selectedFare.category}`
+                : "Rezervă croazieră"}
+            </h2>
             {selectedFare && (
-              <button onClick={() => { setSelectedFare(null); setShowForm(false); }} className="text-xs text-gray-400 hover:text-gray-600">
-                Schimbă cabina
+              <button
+                onClick={() => { setSelectedFare(null); setShowForm(false); }}
+                className="text-xs text-gray-400 hover:text-gray-600"
+              >
+                Schimbă categoria
               </button>
             )}
           </div>
 
           {!showForm && (
             <div className="text-center py-6">
-              <p className="text-gray-500 text-sm mb-4">Selectează o cabină din lista de mai sus pentru a trimite o cerere de ofertă.</p>
-              <button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-medium">
-                Solicită fără a selecta cabina
-              </button>
+              <p className="text-gray-500 text-sm">
+                Selectează o cabină din lista de mai sus pentru a începe rezervarea.
+              </p>
             </div>
           )}
 
-          {showForm && (
-            <RequestForm
-              cruise={cruise}
-              selectedFare={selectedFare}
-              selectedOcc={selectedOcc}
+          {showForm && selectedFare && (
+            <BookingFlow
+              cruiseId={cruise.cruiseID}
+              categoryCode={selectedFare.category}
+              categoryName={selectedFare.fareDesc || selectedFare.category}
+              pricePerPax={parsePrice(selectedFare.prices[selectedOcc])}
+              startDate={startDate}
+              endDate={endDate}
+              noAdults={noAdults}
               onClose={() => { setShowForm(false); setSelectedFare(null); }}
             />
           )}
