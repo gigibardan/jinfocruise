@@ -70,7 +70,6 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 }
 
 // ─── Step 1: Cabin Selection ──────────────────────────────────────────────────
-
 function StepCabins({
   cruiseId, categoryCode, promotionCode, noAdults, onSelect,
 }: {
@@ -83,6 +82,8 @@ function StepCabins({
   const [cabins, setCabins] = useState<Cabin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // Deck-uri expandate (implicit: primul deck expandat)
+  const [expandedDecks, setExpandedDecks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function load() {
@@ -95,6 +96,11 @@ function StepCabins({
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || "Eroare");
         setCabins(data.cabins);
+        // Expandează primul deck automat
+        const firstDeck = data.cabins[0]
+          ? `Puntea ${data.cabins[0].deckNumber} — ${data.cabins[0].deckName}`
+          : null;
+        if (firstDeck) setExpandedDecks(new Set([firstDeck]));
       } catch (e) {
         setError(e instanceof Error ? e.message : "Eroare necunoscută");
       } finally {
@@ -121,6 +127,7 @@ function StepCabins({
     </div>
   );
 
+  // Grupare pe punți
   const byDeck: Record<string, Cabin[]> = {};
   cabins.forEach(c => {
     const key = `Puntea ${c.deckNumber} — ${c.deckName}`;
@@ -128,31 +135,129 @@ function StepCabins({
     byDeck[key].push(c);
   });
 
+  const SHOW_LIMIT = 6;
+
+  const toggleDeck = (deck: string) => {
+    setExpandedDecks(prev => {
+      const next = new Set(prev);
+      if (next.has(deck)) next.delete(deck);
+      else next.add(deck);
+      return next;
+    });
+  };
+
+  // Traduceri locație
+  const translateLoc = (loc: string) => {
+    const map: Record<string, string> = {
+      "Aft Port": "Pupa — Babord",
+      "Aft Starboard": "Pupa — Tribord",
+      "Aft Center": "Pupa — Central",
+      "Aft Centre": "Pupa — Central",
+      "Forward Port": "Prova — Babord",
+      "Forward Starboard": "Prova — Tribord",
+      "Forward Center": "Prova — Central",
+      "Forward Centre": "Prova — Central",
+      "Middle Port": "Mijloc — Babord",
+      "Middle Starboard": "Mijloc — Tribord",
+      "Middle Center": "Mijloc — Central",
+      "Mid Port": "Mijloc — Babord",
+      "Mid Starboard": "Mijloc — Tribord",
+    };
+    return map[loc] ?? loc;
+  };
+
+  const translateBed = (bed: string) => {
+    const map: Record<string, string> = {
+      "2 Lower 0 Upper": "2 paturi individuale",
+      "1 Lower 0 Upper": "1 pat dublu",
+      "2 Lower 1 Upper": "2 paturi + 1 suplimentar",
+      "2 Lower 2 Upper": "4 paturi",
+      "0 Lower 0 Upper": "Configurație la cerere",
+    };
+    return map[bed] ?? bed;
+  };
+
+  // Icon locație
+  const locationIcon = (loc: string) => {
+    const l = loc.toLowerCase();
+    if (l.includes("aft") || l.includes("pupa")) return "🔷";
+    if (l.includes("forward") || l.includes("prova")) return "🔶";
+    return "⬛";
+  };
+
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-4">
-        {cabins.length} cabine disponibile — alege locația preferată:
-      </p>
-      {Object.entries(byDeck).map(([deck, dCabins]) => (
-        <div key={deck} className="mb-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{deck}</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {dCabins.map(cabin => (
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-500">
+          <span className="font-bold text-gray-900 text-base">{cabins.length}</span> cabine disponibile — alege locația preferată:
+        </p>
+      </div>
+
+      {Object.entries(byDeck).map(([deck, dCabins]) => {
+        const isExpanded = expandedDecks.has(deck);
+        const visible = isExpanded ? dCabins : dCabins.slice(0, SHOW_LIMIT);
+        const hasMore = dCabins.length > SHOW_LIMIT;
+
+        return (
+          <div key={deck} className="mb-5">
+            {/* Deck header */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-px flex-1 bg-gray-100" />
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap px-2">
+                🚢 {deck}
+              </span>
+              <div className="h-px flex-1 bg-gray-100" />
+            </div>
+
+            {/* Cabine grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {visible.map(cabin => (
+                <button
+                  key={cabin.cabinNo}
+                  onClick={() => onSelect(cabin)}
+                  className="text-left p-3.5 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:shadow-md transition-all group"
+                >
+                  {/* Numero cabina */}
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-bold text-gray-900 text-sm group-hover:text-blue-700 transition-colors">
+                      Cabina {cabin.cabinNo}
+                    </p>
+                    <span className="w-6 h-6 rounded-full bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <svg className="w-3 h-3 text-gray-400 group-hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                  {/* Locatie */}
+                  {cabin.location && (
+                    <p className="text-xs text-gray-600 mb-1 font-medium">
+                      {locationIcon(cabin.location)} {translateLoc(cabin.location)}
+                    </p>
+                  )}
+                  {/* Paturi */}
+                  {cabin.bedArrangement && (
+                    <p className="text-xs text-gray-400">
+                      🛏 {translateBed(cabin.bedArrangement)}
+                    </p>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Show more / less */}
+            {hasMore && (
               <button
-                key={cabin.cabinNo}
-                onClick={() => onSelect(cabin)}
-                className="text-left p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all group"
+                onClick={() => toggleDeck(deck)}
+                className="mt-3 w-full text-center text-xs font-semibold text-blue-600 hover:text-blue-800 border border-blue-100 hover:border-blue-300 bg-blue-50 hover:bg-blue-100 py-2.5 rounded-xl transition-all"
               >
-                <p className="font-semibold text-gray-800 text-sm group-hover:text-blue-700">
-                  Cabina {cabin.cabinNo}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">{cabin.location}</p>
-                <p className="text-xs text-gray-400">{cabin.bedArrangement}</p>
+                {isExpanded
+                  ? `↑ Arată mai puțin`
+                  : `↓ Vezi toate ${dCabins.length} cabinele de pe această punte (${dCabins.length - SHOW_LIMIT} ascunse)`}
               </button>
-            ))}
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

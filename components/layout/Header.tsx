@@ -22,10 +22,10 @@ const NAV_ITEMS = [
     label: "Nave MSC",
     href: "/nave",
     children: [
-      { label: "MSC World America", href: "/nave/msc-world-america" },
+      { label: "MSC World Europa", href: "/nave/msc-world-europa" },
       { label: "MSC Bellissima", href: "/nave/msc-bellissima" },
       { label: "MSC Euribia", href: "/nave/msc-euribia" },
-      { label: "MSC Seashore", href: "/nave/msc-seashore" },
+      { label: "MSC Fantasia", href: "/nave/msc-fantasia" },
       { label: "MSC Divina", href: "/nave/msc-divina" },
       { label: "MSC Grandiosa", href: "/nave/msc-grandiosa" },
     ],

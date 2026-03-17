@@ -439,52 +439,78 @@ export function getFareTypeInfo(priceType: string) {
 export function getShipImage(shipCd: string): string {
   const images: Record<string, string> = {
     AM: "/ships/msc-world-america.jpg",
+    AT: "/ships/msc-world-atlantic.jpg",
+    AS: "/ships/msc-world-asia.jpg",
+    EU: "/ships/msc-world-europa.jpg",   // EU = World Europa (nu Euribia!)
+    ER: "/ships/msc-euribia.jpg",        // ER = Euribia ✅
+    SC: "/ships/msc-seascape.jpg",
+    SE: "/ships/msc-seaside.jpg",        // SE = Seaside (nu Seashore!)
+    SH: "/ships/msc-seashore.jpg",       // SH = Seashore ✅
+    SV: "/ships/msc-seaview.jpg",
+    SO: "/ships/msc-seaview.jpg",
     BE: "/ships/msc-bellissima.jpg",
-    DI: "/ships/msc-divina.jpg",
-    EU: "/ships/msc-euribia.jpg",
-    MU: "MSC Musica",
-    SE: "/ships/msc-seashore.jpg",
-    GR: "/ships/msc-grandiosa.jpg",
     VI: "/ships/msc-virtuosa.jpg",
-    OX: "/ships/msc-orchestra.jpg",
-    PR: "/ships/msc-preziosa.jpg",
+    GR: "/ships/msc-grandiosa.jpg",
+    MR: "/ships/msc-meraviglia.jpg",
+    ME: "/ships/msc-meraviglia.jpg",
+    DI: "/ships/msc-divina.jpg",
     FA: "/ships/msc-fantasia.jpg",
+    PR: "/ships/msc-preziosa.jpg",
     SP: "/ships/msc-splendida.jpg",
     MA: "/ships/msc-magnifica.jpg",
-    ME: "/ships/msc-meraviglia.jpg",
+    MX: "/ships/msc-magnifica.jpg",
+    MU: "/ships/msc-musica.jpg",
+    OR: "/ships/msc-orchestra.jpg",
+    OX: "/ships/msc-opera.jpg",
+    OP: "/ships/msc-opera.jpg",
+    PO: "/ships/msc-poesia.jpg",
+    LX: "/ships/msc-lirica.jpg",
+    LI: "/ships/msc-lirica.jpg",
+    SX: "/ships/msc-sinfonia.jpg",
+    SI: "/ships/msc-sinfonia.jpg",
+    AR: "/ships/msc-armonia.jpg",
+    AX: "/ships/msc-armonia.jpg",
+    WO: "/ships/msc-world-europa.jpg",
   };
   return images[shipCd] ?? "/ships/default.jpg";
 }
 
 export function getShipName(shipCd: string, fallback = ""): string {
   const names: Record<string, string> = {
-    AM: "MSC World America",
-    BE: "MSC Bellissima",
-    DI: "MSC Divina",
-    EU: "MSC Euribia",
-    MU: "MSC Musica",
-    SE: "MSC Seashore",
-    GR: "MSC Grandiosa",
-    VI: "MSC Virtuosa",
-    SP: "MSC Splendida",
-    MA: "MSC Magnifica",
-    FA: "MSC Fantasia",
-    OX: "MSC Orchestra",
-    PR: "MSC Preziosa",
-    LI: "MSC Lirica",
-    OP: "MSC Opera",
-    SI: "MSC Sinfonia",
-    AR: "MSC Armonia",
-    ME: "MSC Meraviglia",
-    SO: "MSC Seaview",
-    SH: "MSC Seashore",
-    WO: "MSC World Europa",
-    AS: "MSC Seashore",
-    MR: "MSC Meraviglia",
-    LX: "MSC Lirica",
-    SX: "MSC Sinfonia",
-    ER: "MSC Euribia",
-    OR: "MSC Orchestra",
+    // ── Date corecte din API SHP ──────────────────────────────────────────
+    AM: "MSC World America",      // AM = MSC WORLD AMERICA ✅
+    AS: "MSC World Asia",         // AS = MSC WORLD ASIA (era greșit: Seashore)
+    AT: "MSC World Atlantic",     // AT = MSC WORLD ATLANTIC (nou)
+    EU: "MSC World Europa",       // EU = MSC WORLD EUROPA (era greșit: Euribia!)
+    ER: "MSC Euribia",            // ER = MSC EURIBIA ✅
+    SC: "MSC Seascape",           // SC = MSC SEASCAPE (nou)
+    SE: "MSC Seaside",            // SE = MSC SEASIDE (era greșit: Seashore!)
+    SH: "MSC Seashore",           // SH = MSC SEASHORE ✅
+    SV: "MSC Seaview",            // SV = MSC SEAVIEW (era SO, greșit)
+    SO: "MSC Seaview",            // SO păstrat ca alias
+    BE: "MSC Bellissima",         // ✅
+    VI: "MSC Virtuosa",           // ✅
+    GR: "MSC Grandiosa",          // ✅
+    MR: "MSC Meraviglia",         // ✅
+    ME: "MSC Meraviglia",         // alias
+    DI: "MSC Divina",             // ✅
+    FA: "MSC Fantasia",           // ✅
+    PR: "MSC Preziosa",           // ✅
+    SP: "MSC Splendida",          // ✅
+    MA: "MSC Magnifica",          // ✅
+    MX: "MSC Magnifica",          // MX = MSC MAGNIFICA_ (variantă veche)
+    MU: "MSC Musica",             // ✅
+    OR: "MSC Orchestra",          // OR = MSC ORCHESTRA ✅
+    OX: "MSC Opera",              // OX = MSC OPERA ✅
+    OP: "MSC Opera",              // OP = MSC OPERA_ (variantă veche)
+    PO: "MSC Poesia",             // PO = MSC POESIA (nou)
+    LX: "MSC Lirica",             // LX = MSC LIRICA ✅
+    LI: "MSC Lirica",             // LI = MSC LIRICA_ (variantă veche)
+    SX: "MSC Sinfonia",           // SX = MSC SINFONIA ✅
+    SI: "MSC Sinfonia",           // SI = MSC SINFONIA_ (variantă veche)
+    AR: "MSC Armonia",            // AR = MSC ARMONIA_ (variantă veche)
+    AX: "MSC Armonia",            // AX = MSC ARMONIA ✅
+    WO: "MSC World Europa",       // WO alias pentru EU
   };
   return names[shipCd] ?? fallback ?? `MSC ${shipCd}`;
 }
