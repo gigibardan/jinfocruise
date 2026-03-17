@@ -1,52 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { wsPost, checkWsError } from "@/lib/msc-workstream";
 
-// bookOrQuote: "B" = booking real, "Q" = quote (test fără risc)
 export async function POST(req: NextRequest) {
   try {
     const {
-      bookOrQuote = "Q",  // DEFAULT "Q" — sigur pentru teste!
+      bookOrQuote = "Q",
       cruiseId,
       categoryCode,
       cabinNo,
       promotionCode,
       packageCode,
       experienceCode,
-      serviceChargeCode = "SC2526ME",  // mandatory HSC
+      serviceChargeCode = "SC2526ME",
       startDate,
+      endDate,
       noAdults = 2,
       noChildren = 0,
-      passengers = [], // [{ firstName, lastName, type: "A"|"C", leadPax: boolean }]
+      passengers = [],
       diningRoom = "",
       agentEmail = "office@jinfocruise.ro",
     } = await req.json();
 
-    if (!cruiseId || !categoryCode || !cabinNo || !promotionCode || !packageCode || !experienceCode || !startDate) {
+    if (!cruiseId || !categoryCode || !cabinNo || !promotionCode || !packageCode || !experienceCode || !startDate || !endDate) {
       return NextResponse.json(
-        { error: "cruiseId, categoryCode, cabinNo, promotionCode, packageCode, experienceCode, startDate sunt obligatorii" },
+        { error: "cruiseId, categoryCode, cabinNo, promotionCode, packageCode, experienceCode, startDate, endDate sunt obligatorii" },
         { status: 400 }
       );
     }
 
-    // Construim participanții — dacă nu sunt date, folosim TBA
     const totalPax = noAdults + noChildren;
-    const participantsXml = Array.from({ length: totalPax }, (_, i) => {
-      const pax = passengers[i] || {};
-      const personNo = i + 1;
-      const isAdult = i < noAdults;
-      const isLead = i === 0;
+    const adultNos = Array.from({ length: noAdults }, (_, i) => i + 1);
+    const allNos = Array.from({ length: totalPax }, (_, i) => i + 1);
+    const adultNosStr = adultNos.join(",");
+    const allNosStr = allNos.join(",");
+
+    const participantsXml = allNos.map((n) => {
+      const pax = passengers[n - 1] || {};
+      const isAdult = n <= noAdults;
       return `
   <ParticipantData>
-    <PersonNo>${personNo}</PersonNo>
+    <PersonNo>${n}</PersonNo>
     <LastName>${pax.lastName || "TBA"}</LastName>
-    <FirstName>${pax.firstName || (isAdult ? `Adult${personNo}` : `Child${personNo - noAdults}`)}</FirstName>
+    <FirstName>${pax.firstName || (isAdult ? `Adult${n}` : `Child${n - noAdults}`)}</FirstName>
     <PersonType>${isAdult ? "A" : "C"}</PersonType>
-    <LeadPax>${isLead ? "Y" : "N"}</LeadPax>
+    <LeadPax>${n === 1 ? "Y" : "N"}</LeadPax>
     <Gender/>
-    <NationalityCode>${pax.nationality || "RO"}</NationalityCode>
+    <NationalityCode>${pax.nationality || "ROU"}</NationalityCode>
     <PassportData/>
     <ParticipantAddress>
-      <PersonNo>${personNo}</PersonNo>
+      <PersonNo>${n}</PersonNo>
       <PAXDistrictCode/>
       <PAXCountryName/>
       <PAXFaxNo/>
@@ -58,9 +60,6 @@ export async function POST(req: NextRequest) {
     </InsuranceInformation>
   </ParticipantData>`;
     }).join("");
-
-    const personNosStr = Array.from({ length: totalPax }, (_, i) => i + 1).join(",");
-    const adultNosStr = Array.from({ length: noAdults }, (_, i) => i + 1).join(",");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <DtsBookRequestMessageV1 xmlns="DTS">
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
     <LanguageCode>ENG</LanguageCode>
     <OfficeCode>ROM</OfficeCode>
     <OpportunityId/>
-    <BookingChannel>XML</BookingChannel>
+    <BookingChannel>BEE</BookingChannel>
     <PaxType/>
     <AgentEmail>${agentEmail}</AgentEmail>
   </BookingContext>
@@ -110,7 +109,7 @@ export async function POST(req: NextRequest) {
       </Dining>
       <CategoryCode>${categoryCode}</CategoryCode>
       <CabinNo>${cabinNo}</CabinNo>
-      <PersonNo>${personNosStr}</PersonNo>
+      <PersonNo>${allNosStr}</PersonNo>
       <PackageItemDefinition>
         <PackageCode>${packageCode}</PackageCode>
         <PackageItemDetails>
@@ -118,7 +117,7 @@ export async function POST(req: NextRequest) {
           <ItemCode>${experienceCode}</ItemCode>
           <CategoryCode/>
           <StartDate>${startDate}</StartDate>
-          <EndDate>${startDate}</EndDate>
+          <EndDate>${endDate}</EndDate>
           <PersonNo>${adultNosStr}</PersonNo>
         </PackageItemDetails>
       </PackageItemDefinition>
@@ -139,32 +138,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    const get = (tag: string) =>
-      xmlResponse.match(new RegExp(`<${tag}>(.*?)<\/${tag}>`))?.[1] ?? null;
+    const getVal = (xml: string, tag: string) => {
+      const match = xml.match(new RegExp(`<${tag}>([^<]*)<\\/${tag}>`));
+      return match ? match[1].trim() : null;
+    };
 
-    const bookingNo = get("BookingNo");
-    const bookingCharges = get("BookingCharges");
-    const depositDue = get("DepositAmountDue");
-    const depositDate = get("DepositDueDate");
-    const finalPayDate = get("FinalPaymentDate");
-    const optionExpires = get("OptionExpiresDate");
-    const grossBalance = get("GrossBalanceDue");
-    const netBalance = get("NetBalanceDue");
-    const payMethod = get("PayMethod");
+    const bookingInfoMatch = xmlResponse.match(/<BookingInfo>([\s\S]*?)<\/BookingInfo>/);
+    const biBlock = bookingInfoMatch ? bookingInfoMatch[1] : "";
+
+    const totalChargesMatch = biBlock.match(/<BookingCharges>\s*<BookingCharges>([\d.]+)<\/BookingCharges>/)
+      || biBlock.match(/<BookingCharges>([\d.]+)<\/BookingCharges>/);
+    const totalChargesValue = totalChargesMatch ? parseFloat(totalChargesMatch[1]) : 0;
 
     return NextResponse.json({
       success: true,
       isQuote: bookOrQuote === "Q",
-      bookingNo,
+      bookingNo: getVal(xmlResponse, "BookingNo"),
       booking: {
-        totalCharges: parseFloat(bookingCharges || "0"),
-        depositDue: parseFloat(depositDue || "0"),
-        depositDate,
-        finalPaymentDate: finalPayDate,
-        optionExpiresDate: optionExpires,
-        grossBalanceDue: parseFloat(grossBalance || "0"),
-        netBalanceDue: parseFloat(netBalance || "0"),
-        payMethod,
+        totalCharges: totalChargesValue,
+        depositDue: parseFloat(getVal(biBlock, "DepositAmountDue") || "0"),
+        depositDate: getVal(biBlock, "DepositDueDate"),
+        finalPaymentDate: getVal(biBlock, "FinalPaymentDate"),
+        optionExpiresDate: getVal(biBlock, "OptionExpiresDate"),
+        grossBalanceDue: parseFloat(getVal(biBlock, "GrossBalanceDue") || "0"),
+        netBalanceDue: parseFloat(getVal(biBlock, "NetBalanceDue") || "0"),
+        payMethod: getVal(xmlResponse, "PayMethod"),
       },
       rawXml: process.env.NODE_ENV === "development" ? xmlResponse : undefined,
     });
