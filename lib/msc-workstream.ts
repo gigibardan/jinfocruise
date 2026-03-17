@@ -2,9 +2,9 @@ const WS_BASE = process.env.MSC_WS_BASE!;
 
 export const WS_HEADERS = {
   "Content-Type": "text/xml",
-  "UserId": "OTA3-RO000043",
-  "AgencyId": "RO000043",
-  "Password": "0cf43a5e90d824440ea9b809b153dcfb4d5960ecb450442c904c1d28b16d8aa0",
+  "UserId":   process.env.MSC_USER_ID!,
+  "AgencyId": process.env.MSC_AGENCY_ID!,
+  "Password": process.env.MSC_PASSWORD!,
 };
 
 export const WS_CONTEXT = {

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const MSC_ENDPOINT = process.env.MSC_ENDPOINT!
-const USER_ID = "OTA3-RO000043";
-const AGENCY_ID = "RO000043";
-const PASSWORD = "0cf43a5e90d824440ea9b809b153dcfb4d5960ecb450442c904c1d28b16d8aa0";
-const MARKET_CODE = "ROM";
-const AGENT_ID = "STAR";
+const MSC_ENDPOINT = process.env.MSC_ENDPOINT!;
+const USER_ID      = process.env.MSC_USER_ID!;
+const AGENCY_ID    = process.env.MSC_AGENCY_ID!;
+const PASSWORD     = process.env.MSC_PASSWORD!;
+const MARKET_CODE  = process.env.MSC_MARKET_CODE ?? "ROM";
+const AGENT_ID     = process.env.MSC_AGENT_ID ?? "STAR";
 
 export async function POST(req: NextRequest) {
   try {
