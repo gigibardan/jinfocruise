@@ -230,8 +230,12 @@ export async function POST(req: NextRequest) {
 
     if (!cruise) {
       return NextResponse.json(
-        { error: "Nu s-au putut parsa datele croazierei" },
-        { status: 500 }
+        {
+          success: false,
+          notAvailableInWorkstream: true,
+          error: "Această croazieră nu este disponibilă momentan pentru rezervare online.",
+        },
+        { status: 404 }
       );
     }
 

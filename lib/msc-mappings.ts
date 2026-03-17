@@ -483,6 +483,8 @@ export function getShipName(shipCd: string, fallback = ""): string {
     MR: "MSC Meraviglia",
     LX: "MSC Lirica",
     SX: "MSC Sinfonia",
+    ER: "MSC Euribia",
+    OR: "MSC Orchestra",
   };
   return names[shipCd] ?? fallback ?? `MSC ${shipCd}`;
 }

@@ -101,8 +101,8 @@ export const MSC_SHIPS: Record<string, ShipInfo> = {
     rating: 4,
     region: ["Mediterana", "Caraibe"],
   },
-  EU: {
-    code: "EU",
+  ER: {
+    code: "ER",
     name: "Euribia",
     fullName: "MSC Euribia",
     year: 2023,
@@ -230,6 +230,32 @@ export const MSC_SHIPS: Record<string, ShipInfo> = {
     class: "meraviglia",
     rating: 5,
     region: ["Europa de Nord", "Mediterana"],
+  },
+  OR: {
+    code: "OR",
+    name: "Orchestra",
+    fullName: "MSC Orchestra",
+    year: 2007,
+    grossTonnage: 92409,
+    passengers: 3013,
+    crew: 987,
+    decks: 13,
+    length: 293,
+    description:
+      "MSC Orchestra este una dintre navele clasice ale flotei MSC, perfectă pentru familii și cupluri. Cu un design elegant și facilități complete, nava oferă croaziere memorabile în Mediterana și alte destinații europene.",
+    highlights: [
+      "Piscine multiple",
+      "Spa și centru de wellness",
+      "Restaurante specialitate",
+      "Cazinou",
+      "Teatru și spectacole",
+      "Club pentru copii",
+      "Sports bar",
+    ],
+    image: "/ships/msc-orchestra.jpg",
+    class: "musica",
+    rating: 4,
+    region: ["Mediterana", "Europa de Nord"],
   },
 };
 
