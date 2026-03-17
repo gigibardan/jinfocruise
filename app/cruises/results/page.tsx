@@ -278,7 +278,7 @@ function CruiseCard({ fare, onSelect }: { fare: Fare; onSelect: () => void }) {
           <div className="text-right">
             <p className="text-xs text-gray-400 mb-0.5">de la / persoană</p>
             <p className="text-2xl font-bold text-blue-700 leading-none">
-              {formatPrice(fare.minPrice)}
+              {formatPrice(Math.round(fare.minPrice / 2))}
             </p>
             <p className="text-xs text-gray-400 mt-1">+ taxe portuare</p>
           </div>

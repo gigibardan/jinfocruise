@@ -253,13 +253,33 @@ export default function CruiseDetailPage() {
     </div>
   );
 
-  if (error || !cruise) return (
+ if (error || !cruise) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-red-600 mb-4">{error || "Croaziera nu a fost găsită"}</p>
-        <button onClick={() => router.back()} className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm">
-          ← Înapoi
-        </button>
+      <div className="text-center max-w-md px-6">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-3xl">🚢</span>
+        </div>
+        <h2 className="text-lg font-bold text-gray-800 mb-2">
+          Rezervare online indisponibilă
+        </h2>
+        <p className="text-gray-500 text-sm mb-6">
+          Această croazieră nu este momentan disponibilă pentru rezervare online.
+          Te rugăm să ne contactezi direct pentru o ofertă personalizată.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <a
+            href="tel:+40700000000"
+            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium"
+          >
+            Suna-ne
+          </a>
+          <button
+            onClick={() => router.back()}
+            className="border border-gray-200 text-gray-600 px-5 py-2.5 rounded-xl text-sm"
+          >
+            Inapoi
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -267,7 +287,7 @@ export default function CruiseDetailPage() {
   const shipInfo = getShipInfo(cruise.shipCode);
   const cabinGroups = groupByType(cruise.categories);
   const cabinOrder: CabinType[] = ["interior", "exterior", "balcon", "suite"];
-  const expiryBadge = getExpiryBadge("");
+
 
   // Taxe la bord
   const mandatorySC = cruise.serviceCharges.find(sc => sc.standard);
@@ -449,6 +469,9 @@ export default function CruiseDetailPage() {
                 selectedCat.allowedOccupancies.includes(2) ? 2 :
                   selectedCat.allowedOccupancies[0] ?? 2
               }
+              packageCode={selectedCat.packageCode}
+              experienceCode={selectedCat.experienceCode}
+              priceCode={selectedCat.priceCode}
               onClose={() => { setShowFlow(false); setSelectedCat(null); }}
             />
           )}

@@ -30,6 +30,9 @@ export interface BookingFlowProps {
   startDate: string;
   endDate: string;
   noAdults: number;
+  packageCode?: string;
+  experienceCode?: string;
+  priceCode?: string;
   onClose: () => void;
 }
 
@@ -47,11 +50,10 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
     <div className="flex items-center gap-2 mb-6">
       {Array.from({ length: total }, (_, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-            i + 1 < current ? "bg-green-500 text-white" :
-            i + 1 === current ? "bg-blue-600 text-white" :
-            "bg-gray-100 text-gray-400"
-          }`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${i + 1 < current ? "bg-green-500 text-white" :
+              i + 1 === current ? "bg-blue-600 text-white" :
+                "bg-gray-100 text-gray-400"
+            }`}>
             {i + 1 < current ? "✓" : i + 1}
           </div>
           {i < total - 1 && (
@@ -182,12 +184,12 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
     placeholder: string;
     full?: boolean;
   }[] = [
-    { field: "lastName",  label: "Nume",        type: "text",  placeholder: "Popescu" },
-    { field: "firstName", label: "Prenume",      type: "text",  placeholder: "Ion" },
-    { field: "email",     label: "Email",        type: "email", placeholder: "email@exemplu.ro" },
-    { field: "phone",     label: "Telefon",      type: "tel",   placeholder: "+40 700 000 000" },
-    { field: "dob",       label: "Dată naștere", type: "date",  placeholder: "", full: true },
-  ];
+      { field: "lastName", label: "Nume", type: "text", placeholder: "Popescu" },
+      { field: "firstName", label: "Prenume", type: "text", placeholder: "Ion" },
+      { field: "email", label: "Email", type: "email", placeholder: "email@exemplu.ro" },
+      { field: "phone", label: "Telefon", type: "tel", placeholder: "+40 700 000 000" },
+      { field: "dob", label: "Dată naștere", type: "date", placeholder: "", full: true },
+    ];
 
   return (
     <div>
@@ -203,11 +205,10 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
               value={form[field]}
               onChange={set(field)}
               placeholder={placeholder}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors[field]
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors[field]
                   ? "border-red-400 bg-red-50"
                   : "border-gray-200 bg-gray-50 hover:border-gray-300"
-              }`}
+                }`}
             />
             {errors[field] && (
               <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
@@ -286,7 +287,6 @@ function StepConfirm({
     setBooking(true);
     setError("");
     try {
-      // 1. Lock cabina
       const lockRes = await fetch("/api/msc/workstream/cabin-lock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -295,7 +295,6 @@ function StepConfirm({
       const lockData = await lockRes.json();
       if (!lockData.success || !lockData.lockId) throw new Error("Nu s-a putut bloca cabina");
 
-      // 2. Unlock (transfer spre booking)
       await fetch("/api/msc/workstream/cabin-unlock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -305,7 +304,6 @@ function StepConfirm({
         }),
       });
 
-      // 3. Book Quote
       const bookRes = await fetch("/api/msc/workstream/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -343,18 +341,17 @@ function StepConfirm({
 
   return (
     <div>
-      {/* Sumar */}
       <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-2.5">
         <h3 className="font-semibold text-gray-700 text-sm mb-3">Sumar rezervare</h3>
         {[
-          { label: "Cabină",            value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
-          { label: "Locație",           value: cabin.location },
-          { label: "Paturi",            value: cabin.bedArrangement },
-          { label: "Tip cabină",        value: `${categoryName} (${categoryCode})` },
-          { label: "Pasageri",          value: `${noAdults} adulți` },
+          { label: "Cabină", value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
+          { label: "Locație", value: cabin.location },
+          { label: "Paturi", value: cabin.bedArrangement },
+          { label: "Tip cabină", value: `${categoryName} (${categoryCode})` },
+          { label: "Pasageri", value: `${noAdults} adulți` },
           { label: "Pasager principal", value: `${contact.firstName} ${contact.lastName}` },
-          { label: "Email",             value: contact.email },
-          { label: "Telefon",           value: contact.phone },
+          { label: "Email", value: contact.email },
+          { label: "Telefon", value: contact.phone },
         ].map(({ label, value }) => (
           <div key={label} className="flex justify-between items-center text-sm">
             <span className="text-gray-500">{label}</span>
@@ -363,7 +360,6 @@ function StepConfirm({
         ))}
       </div>
 
-      {/* Preț */}
       {pricing && (
         <div className="bg-blue-50 rounded-xl p-4 mb-5 space-y-2">
           <h3 className="font-semibold text-blue-800 text-sm mb-3">Detalii preț</h3>
@@ -463,7 +459,11 @@ function StepSuccess({
 
 export function BookingFlow({
   cruiseId, categoryCode, categoryName,
-  pricePerPax, startDate, endDate, noAdults, onClose,
+  pricePerPax, startDate, endDate, noAdults,
+  packageCode: pkgCodeProp,
+  experienceCode: expCodeProp,
+  priceCode: priceCodeProp, 
+  onClose,
 }: BookingFlowProps) {
   const [step, setStep] = useState(1);
   const [selectedCabin, setSelectedCabin] = useState<Cabin | null>(null);
@@ -471,16 +471,18 @@ export function BookingFlow({
   const [bookingNo, setBookingNo] = useState("");
   const [grossAmount, setGrossAmount] = useState(0);
 
+  // Preferăm props din cruise-detail, fallback pe CATEGORY_PACKAGE_MAP
   const pkgInfo = getPackageInfo(categoryCode);
+  const packageCode = pkgCodeProp || pkgInfo?.packageCode || "";
+  const experienceCode = expCodeProp || pkgInfo?.experienceCode || "";
+  const priceCode = priceCodeProp || pkgInfo?.priceCode || ""; 
 
-  if (!pkgInfo) return (
+  if (!packageCode || !experienceCode) return (
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-700 text-sm">
       Categoria <strong>{categoryCode}</strong> nu este disponibilă pentru rezervare online.
       Te rugăm să ne contactezi telefonic.
     </div>
   );
-
-  const { packageCode, experienceCode, priceCode } = pkgInfo;
 
   return (
     <div>
