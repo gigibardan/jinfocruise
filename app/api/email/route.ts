@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // ─── Email client ─────────────────────────────────────────────────────────
     const clientEmail = await resend.emails.send({
-      from: `${AGENCY_NAME} <onboarding@resend.dev>`,
+      from: `J'INFO TOURS <office@jinfotours.ro>`,
       to: leadEmail,
       subject: `Rezervare confirmată #${bookingNoMsc} — ${shipName}`,
       html: `
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     // ─── Email intern (agenție) ───────────────────────────────────────────────
     const agencyEmail = await resend.emails.send({
-      from: `${AGENCY_NAME} <onboarding@resend.dev>`,
+      from: `J'INFO TOURS <office@jinfotours.ro>`,
       to: AGENCY_EMAIL,
       subject: `🔔 Rezervare nouă #${bookingNoMsc} — ${leadFirstName} ${leadLastName}`,
       html: `

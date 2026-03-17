@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ItinerarySection } from "@/components/cruise/ItinerarySection";
 import { ExcursionsSection } from "@/components/cruise/ExcursionsSection";
 import { BookingFlow } from "@/components/booking/BookingFlow";
+import { RequestForm } from "@/components/cruise/RequestForm";
 import Image from "next/image";
 import {
   getCabinTypeColor,
@@ -480,6 +481,37 @@ export default function CruiseDetailPage() {
               onClose={() => { setShowFlow(false); setSelectedCat(null); }}
             />
           )}
+        </div>
+
+        {/* Separator */}
+        <div className="flex items-center gap-4 my-2">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400 whitespace-nowrap">sau</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        {/* Cerere de ofertă */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-800 mb-1">
+            Solicită o ofertă personalizată
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Preferi să fii contactat de un consultant? Lasă-ne datele și te sunăm noi pentru oferta personalizata.
+          </p>
+          <RequestForm
+            cruise={{
+              cruiseID: cruise.cruiseId,
+              shipCd: cruise.shipCode,
+              shipName: cruise.shipName,
+              sailingDate: cruise.sailingDate,
+              sailingPort: cruise.departurePort,
+              nights: cruise.nights,
+              itinDesc: cruise.canvasDesc,
+            }}
+            selectedFare={null}
+            selectedOcc="2A"
+            onClose={() => { }}
+          />
         </div>
 
       </div>
