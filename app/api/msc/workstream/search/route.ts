@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const WS_BASE   = "https://layer7test.msccruises.com/test";
+const WS_BASE = process.env.MSC_WS_BASE!;
 const USER_ID   = "OTA3-RO000043";
 const AGENCY_ID = "RO000043";
 const PASSWORD  = "0cf43a5e90d824440ea9b809b153dcfb4d5960ecb450442c904c1d28b16d8aa0";

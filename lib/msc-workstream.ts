@@ -1,4 +1,4 @@
-const WS_BASE = "https://layer7test.msccruises.com/test/mscbee/services";
+const WS_BASE = process.env.MSC_WS_BASE!;
 
 export const WS_HEADERS = {
   "Content-Type": "text/xml",
