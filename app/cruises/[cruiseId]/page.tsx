@@ -253,7 +253,7 @@ export default function CruiseDetailPage() {
     </div>
   );
 
- if (error || !cruise) return (
+  if (error || !cruise) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center max-w-md px-6">
         <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -472,6 +472,8 @@ export default function CruiseDetailPage() {
               packageCode={selectedCat.packageCode}
               experienceCode={selectedCat.experienceCode}
               priceCode={selectedCat.priceCode}
+              shipCode={cruise.shipCode}
+              shipName={cruise.shipName}
               onClose={() => { setShowFlow(false); setSelectedCat(null); }}
             />
           )}

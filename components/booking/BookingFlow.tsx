@@ -33,6 +33,8 @@ export interface BookingFlowProps {
   packageCode?: string;
   experienceCode?: string;
   priceCode?: string;
+  shipCode?: string;
+  shipName?: string;
   onClose: () => void;
 }
 
@@ -51,8 +53,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
       {Array.from({ length: total }, (_, i) => (
         <div key={i} className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${i + 1 < current ? "bg-green-500 text-white" :
-              i + 1 === current ? "bg-blue-600 text-white" :
-                "bg-gray-100 text-gray-400"
+            i + 1 === current ? "bg-blue-600 text-white" :
+              "bg-gray-100 text-gray-400"
             }`}>
             {i + 1 < current ? "✓" : i + 1}
           </div>
@@ -206,8 +208,8 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
               onChange={set(field)}
               placeholder={placeholder}
               className={`w-full px-3 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors[field]
-                  ? "border-red-400 bg-red-50"
-                  : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                ? "border-red-400 bg-red-50"
+                : "border-gray-200 bg-gray-50 hover:border-gray-300"
                 }`}
             />
             {errors[field] && (
@@ -231,7 +233,7 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
 function StepConfirm({
   cruiseId, categoryCode, categoryName, promotionCode,
   packageCode, experienceCode, startDate, endDate,
-  noAdults, cabin, contact, pricePerPax,
+  noAdults, cabin, contact, pricePerPax, shipCode, shipName,
   onConfirm, onBack,
 }: {
   cruiseId: string;
@@ -246,6 +248,8 @@ function StepConfirm({
   cabin: Cabin;
   contact: ContactData;
   pricePerPax: number;
+  shipCode: string;
+  shipName: string;
   onConfirm: (bookingNo: string, gross: number) => void;
   onBack: () => void;
 }) {
@@ -324,6 +328,35 @@ function StepConfirm({
       if (!bookData.success || !bookData.bookingNo) {
         throw new Error(bookData.error || "Eroare la creare rezervare");
       }
+
+      // Salvează în Supabase
+      await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingNoMsc: bookData.bookingNo,
+          cruiseId,
+          shipCode,        
+          shipName,        
+          sailingDate: startDate,  
+          categoryCode,
+          categoryName,
+          cabinNo: cabin.cabinNo,
+          isQuote: true,
+          noAdults,
+          grossAmount: pricing?.totalGross ?? 0,
+          netAmount: pricing?.totalNet ?? 0,
+          commission: pricing?.totalCommission ?? 0,
+          portCharges: pricing?.portCharges ?? 0,
+          depositDue: pricing?.depositDue ?? 0,
+          payMethod: bookData.booking?.payMethod ?? "AGENCY",
+          leadFirstName: contact.firstName,
+          leadLastName: contact.lastName,
+          leadEmail: contact.email,
+          leadPhone: contact.phone,
+          leadDob: contact.dob || null,
+        }),
+      }).catch(e => console.error("Eroare salvare booking:", e));
 
       onConfirm(bookData.bookingNo, pricing?.totalGross ?? 0);
     } catch (e) {
@@ -462,7 +495,9 @@ export function BookingFlow({
   pricePerPax, startDate, endDate, noAdults,
   packageCode: pkgCodeProp,
   experienceCode: expCodeProp,
-  priceCode: priceCodeProp, 
+  priceCode: priceCodeProp,
+  shipCode = "",
+  shipName = "",
   onClose,
 }: BookingFlowProps) {
   const [step, setStep] = useState(1);
@@ -475,7 +510,7 @@ export function BookingFlow({
   const pkgInfo = getPackageInfo(categoryCode);
   const packageCode = pkgCodeProp || pkgInfo?.packageCode || "";
   const experienceCode = expCodeProp || pkgInfo?.experienceCode || "";
-  const priceCode = priceCodeProp || pkgInfo?.priceCode || ""; 
+  const priceCode = priceCodeProp || pkgInfo?.priceCode || "";
 
   if (!packageCode || !experienceCode) return (
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-700 text-sm">
@@ -518,6 +553,8 @@ export function BookingFlow({
           cabin={selectedCabin}
           contact={contact}
           pricePerPax={pricePerPax}
+          shipCode={shipCode}
+          shipName={shipName}
           onConfirm={(bNo, gross) => {
             setBookingNo(bNo);
             setGrossAmount(gross);
