@@ -474,6 +474,9 @@ export default function CruiseDetailPage() {
               priceCode={selectedCat.priceCode}
               shipCode={cruise.shipCode}
               shipName={cruise.shipName}
+              serviceChargeCode={
+                cruise.serviceCharges.find(sc => sc.standard)?.code ?? "SC2526ME"
+              }
               onClose={() => { setShowFlow(false); setSelectedCat(null); }}
             />
           )}

@@ -35,6 +35,7 @@ export interface BookingFlowProps {
   priceCode?: string;
   shipCode?: string;
   shipName?: string;
+  serviceChargeCode?: string; 
   onClose: () => void;
 }
 
@@ -233,7 +234,7 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
 function StepConfirm({
   cruiseId, categoryCode, categoryName, promotionCode,
   packageCode, experienceCode, startDate, endDate,
-  noAdults, cabin, contact, pricePerPax, shipCode, shipName,
+  noAdults, cabin, contact, pricePerPax, shipCode, shipName, serviceChargeCode,
   onConfirm, onBack,
 }: {
   cruiseId: string;
@@ -250,6 +251,7 @@ function StepConfirm({
   pricePerPax: number;
   shipCode: string;
   shipName: string;
+  serviceChargeCode: string;  
   onConfirm: (bookingNo: string, gross: number) => void;
   onBack: () => void;
 }) {
@@ -315,7 +317,7 @@ function StepConfirm({
           bookOrQuote: "Q",
           cruiseId, categoryCode, cabinNo: cabin.cabinNo,
           promotionCode, packageCode, experienceCode,
-          startDate, endDate, noAdults,
+          startDate, endDate, noAdults, serviceChargeCode, 
           passengers: [{
             firstName: contact.firstName,
             lastName: contact.lastName,
@@ -498,6 +500,7 @@ export function BookingFlow({
   priceCode: priceCodeProp,
   shipCode = "",
   shipName = "",
+  serviceChargeCode = "SC2526ME",  
   onClose,
 }: BookingFlowProps) {
   const [step, setStep] = useState(1);
@@ -555,6 +558,7 @@ export function BookingFlow({
           pricePerPax={pricePerPax}
           shipCode={shipCode}
           shipName={shipName}
+          serviceChargeCode={serviceChargeCode} 
           onConfirm={(bNo, gross) => {
             setBookingNo(bNo);
             setGrossAmount(gross);
