@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const WS_BASE   = process.env.MSC_WS_BASE!;
-const USER_ID   = process.env.MSC_USER_ID!;
-const AGENCY_ID = process.env.MSC_AGENCY_ID!; 
-const PASSWORD  = process.env.MSC_PASSWORD!;
-const AGENT_ID  = process.env.MSC_AGENT_ID ?? "STAR"; 
+const WS_BASE = process.env.MSC_WS_BASE!;
+const USER_ID = process.env.MSC_USER_ID!;
+const AGENCY_ID = process.env.MSC_AGENCY_ID!;
+const PASSWORD = process.env.MSC_PASSWORD!;
+const AGENT_ID = process.env.MSC_AGENT_ID ?? "STAR";
 
 const HEADERS = {
   "Content-Type": "text/xml",
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `${WS_BASE}/mscbee/services/searchcruises/searchcruisesdetV1/`,
+      `${WS_BASE}/searchcruises/searchcruisesdetV1/`,
       {
         method: "POST",
         headers: HEADERS,
