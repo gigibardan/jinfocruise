@@ -54,11 +54,10 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
     <div className="flex items-center gap-2 mb-6">
       {Array.from({ length: total }, (_, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-            i + 1 < current ? "bg-green-500 text-white" :
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${i + 1 < current ? "bg-green-500 text-white" :
             i + 1 === current ? "bg-blue-600 text-white" :
-            "bg-gray-100 text-gray-400"
-          }`}>
+              "bg-gray-100 text-gray-400"
+            }`}>
             {i + 1 < current ? "✓" : i + 1}
           </div>
           {i < total - 1 && (
@@ -284,12 +283,12 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
     placeholder: string;
     full?: boolean;
   }[] = [
-    { field: "lastName",  label: "Nume",         type: "text",  placeholder: "Popescu" },
-    { field: "firstName", label: "Prenume",       type: "text",  placeholder: "Ion" },
-    { field: "email",     label: "Email",         type: "email", placeholder: "email@exemplu.ro" },
-    { field: "phone",     label: "Telefon",       type: "tel",   placeholder: "+40 700 000 000" },
-    { field: "dob",       label: "Dată naștere",  type: "date",  placeholder: "", full: true },
-  ];
+      { field: "lastName", label: "Nume", type: "text", placeholder: "Popescu" },
+      { field: "firstName", label: "Prenume", type: "text", placeholder: "Ion" },
+      { field: "email", label: "Email", type: "email", placeholder: "email@exemplu.ro" },
+      { field: "phone", label: "Telefon", type: "tel", placeholder: "+40 700 000 000" },
+      { field: "dob", label: "Dată naștere", type: "date", placeholder: "", full: true },
+    ];
 
   return (
     <div>
@@ -305,11 +304,10 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
               value={form[field]}
               onChange={set(field)}
               placeholder={placeholder}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors[field]
-                  ? "border-red-400 bg-red-50"
-                  : "border-gray-200 bg-white hover:border-gray-300"
-              }`}
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors[field]
+                ? "border-red-400 bg-red-50"
+                : "border-gray-200 bg-white hover:border-gray-300"
+                }`}
             />
             {errors[field] && (
               <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
@@ -390,7 +388,14 @@ function StepConfirm({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const hscTotal = serviceChargePerAdult * noAdults;
-  const grandTotal = pricing ? pricing.totalGross + hscTotal : 0;
+  // Dacă totalGross - portCharges e mai mare decât pricePerPax*noAdults
+  // înseamnă că HSC e deja inclus
+  const grossWithoutPCH = pricing ? pricing.totalGross - pricing.portCharges : 0;
+  const expectedCabinOnly = pricePerPax * noAdults;
+  const hscAlreadyIncluded = grossWithoutPCH > expectedCabinOnly + 10;
+  const grandTotal = pricing
+    ? hscAlreadyIncluded ? pricing.totalGross : pricing.totalGross + hscTotal
+    : 0;
 
   const handleBook = async () => {
     setBooking(true);
@@ -507,14 +512,14 @@ function StepConfirm({
       <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-2.5">
         <h3 className="font-semibold text-gray-700 text-sm mb-3">Sumar rezervare</h3>
         {[
-          { label: "Cabină",           value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
-          { label: "Locație",          value: cabin.location },
-          { label: "Paturi",           value: cabin.bedArrangement },
-          { label: "Tip cabină",       value: `${categoryName} (${categoryCode})` },
-          { label: "Pasageri",         value: `${noAdults} adulți` },
-          { label: "Pasager principal",value: `${contact.firstName} ${contact.lastName}` },
-          { label: "Email",            value: contact.email },
-          { label: "Telefon",          value: contact.phone },
+          { label: "Cabină", value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
+          { label: "Locație", value: cabin.location },
+          { label: "Paturi", value: cabin.bedArrangement },
+          { label: "Tip cabină", value: `${categoryName} (${categoryCode})` },
+          { label: "Pasageri", value: `${noAdults} adulți` },
+          { label: "Pasager principal", value: `${contact.firstName} ${contact.lastName}` },
+          { label: "Email", value: contact.email },
+          { label: "Telefon", value: contact.phone },
         ].map(({ label, value }) => (
           <div key={label} className="flex justify-between items-center text-sm">
             <span className="text-gray-500">{label}</span>
@@ -530,7 +535,9 @@ function StepConfirm({
           <div className="flex justify-between text-sm">
             <span className="text-blue-600">Tarif cabină ({noAdults} adulți)</span>
             <span className="font-medium text-blue-800">
-              {formatPrice(pricing.totalGross - pricing.portCharges)}
+              {formatPrice(hscAlreadyIncluded
+                ? pricing.totalGross - pricing.portCharges - hscTotal
+                : pricing.totalGross - pricing.portCharges)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
