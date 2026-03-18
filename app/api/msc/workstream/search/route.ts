@@ -37,12 +37,17 @@ function buildSearchXml(cruiseId: string, adults = "2", children = "0") {
   <BudgetRange>0-5000000</BudgetRange>
   <Flight>N</Flight>
   <Sort>C</Sort>
-  <PriceTypes>
+ <PriceTypes>
   <PriceType>WAVE</PriceType>
-    <PriceType>EARLYBKG</PriceType>
-    <PriceType>EBDRINK</PriceType>
-    <PriceType>STANDARD</PriceType>
-  </PriceTypes>
+  <PriceType>WAVEPREM</PriceType>
+  <PriceType>WAVESOFT</PriceType>
+  <PriceType>HBDRINK</PriceType>
+  <PriceType>HBSOFT</PriceType>
+  <PriceType>BROKEN</PriceType>
+  <PriceType>EARLYBKG</PriceType>
+  <PriceType>EBDRINK</PriceType>
+  <PriceType>STANDARD</PriceType>
+</PriceTypes>
 </DtsSearchCruisesV1>`;
 }
 
