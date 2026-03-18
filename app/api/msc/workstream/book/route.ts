@@ -2,12 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { wsPost, checkWsError } from "@/lib/msc-workstream";
 
 export async function POST(req: NextRequest) {
-   if (process.env.DISABLE_BOOKING === "true") {
-    return NextResponse.json(
-      { error: "Rezervările sunt temporar dezactivate. Te rugam sa ne contactezi" },
-      { status: 503 }
-    );
+
+  // ─── MOCK MODE ────────────────────────────────────────────────────────────
+  // Activ când DISABLE_BOOKING=true în Vercel
+  // Returnează un booking fals pentru testare UI fără a crea quote real în MSC
+  // Salvează totuși în Supabase pentru a testa fluxul complet
+  if (process.env.DISABLE_BOOKING === "true") {
+    const body = await req.json();
+    const mockBookingNo = `TEST-${Date.now().toString().slice(-6)}`;
+    return NextResponse.json({
+      success:   true,
+      isQuote:   true,
+      mock:      true,
+      bookingNo: mockBookingNo,
+      booking: {
+        totalCharges:      0,
+        depositDue:        0,
+        depositDate:       null,
+        finalPaymentDate:  null,
+        optionExpiresDate: null,
+        grossBalanceDue:   0,
+        netBalanceDue:     0,
+        payMethod:         null,
+      },
+    });
   }
+
+  // ─── REAL BOOKING ─────────────────────────────────────────────────────────
+  // Decomentează când DISABLE_BOOKING=false și ești pregătit pentru producție
   try {
     const {
       bookOrQuote = "Q",
@@ -34,14 +56,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const totalPax = noAdults + noChildren;
-    const adultNos = Array.from({ length: noAdults }, (_, i) => i + 1);
-    const allNos = Array.from({ length: totalPax }, (_, i) => i + 1);
+    const totalPax    = noAdults + noChildren;
+    const adultNos    = Array.from({ length: noAdults }, (_, i) => i + 1);
+    const allNos      = Array.from({ length: totalPax }, (_, i) => i + 1);
     const adultNosStr = adultNos.join(",");
-    const allNosStr = allNos.join(",");
+    const allNosStr   = allNos.join(",");
 
     const participantsXml = allNos.map((n) => {
-      const pax = passengers[n - 1] || {};
+      const pax     = passengers[n - 1] || {};
       const isAdult = n <= noAdults;
       return `
   <ParticipantData>
@@ -152,23 +174,25 @@ export async function POST(req: NextRequest) {
     const bookingInfoMatch = xmlResponse.match(/<BookingInfo>([\s\S]*?)<\/BookingInfo>/);
     const biBlock = bookingInfoMatch ? bookingInfoMatch[1] : "";
 
-    const totalChargesMatch = biBlock.match(/<BookingCharges>\s*<BookingCharges>([\d.]+)<\/BookingCharges>/)
-      || biBlock.match(/<BookingCharges>([\d.]+)<\/BookingCharges>/);
+    const totalChargesMatch =
+      biBlock.match(/<BookingCharges>\s*<BookingCharges>([\d.]+)<\/BookingCharges>/) ||
+      biBlock.match(/<BookingCharges>([\d.]+)<\/BookingCharges>/);
     const totalChargesValue = totalChargesMatch ? parseFloat(totalChargesMatch[1]) : 0;
 
     return NextResponse.json({
-      success: true,
-      isQuote: bookOrQuote === "Q",
+      success:   true,
+      isQuote:   bookOrQuote === "Q",
+      mock:      false,
       bookingNo: getVal(xmlResponse, "BookingNo"),
       booking: {
-        totalCharges: totalChargesValue,
-        depositDue: parseFloat(getVal(biBlock, "DepositAmountDue") || "0"),
-        depositDate: getVal(biBlock, "DepositDueDate"),
-        finalPaymentDate: getVal(biBlock, "FinalPaymentDate"),
+        totalCharges:      totalChargesValue,
+        depositDue:        parseFloat(getVal(biBlock, "DepositAmountDue") || "0"),
+        depositDate:       getVal(biBlock, "DepositDueDate"),
+        finalPaymentDate:  getVal(biBlock, "FinalPaymentDate"),
         optionExpiresDate: getVal(biBlock, "OptionExpiresDate"),
-        grossBalanceDue: parseFloat(getVal(biBlock, "GrossBalanceDue") || "0"),
-        netBalanceDue: parseFloat(getVal(biBlock, "NetBalanceDue") || "0"),
-        payMethod: getVal(xmlResponse, "PayMethod"),
+        grossBalanceDue:   parseFloat(getVal(biBlock, "GrossBalanceDue") || "0"),
+        netBalanceDue:     parseFloat(getVal(biBlock, "NetBalanceDue") || "0"),
+        payMethod:         getVal(xmlResponse, "PayMethod"),
       },
       rawXml: process.env.NODE_ENV === "development" ? xmlResponse : undefined,
     });
