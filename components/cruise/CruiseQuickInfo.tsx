@@ -13,13 +13,12 @@ function formatDate(str: string): string {
 
 interface Props {
   cruise: WorkstreamCruiseDetail;
-  hideTaxes?: boolean;  // afișează doar cardurile info, fără taxe
-  taxeOnly?: boolean;   // afișează doar blocul de taxe
+  hideTaxes?: boolean;
+  taxeOnly?: boolean;
 }
 
 export function CruiseQuickInfo({ cruise, hideTaxes, taxeOnly }: Props) {
   const mandatorySC = cruise.serviceCharges.find((sc) => sc.standard);
-  const optionalSC = cruise.serviceCharges.find((sc) => !sc.standard);
 
   const quickInfoItems = [
     {
@@ -46,47 +45,37 @@ export function CruiseQuickInfo({ cruise, hideTaxes, taxeOnly }: Props) {
     },
   ];
 
-  // Mod taxeOnly — afișează doar blocul de taxe
+  const TaxeBlock = () => (
+    <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span className="text-base">ℹ️</span>
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-bold text-amber-900 mb-1">
+            Taxe suplimentare
+          </p>
+          <p className="text-xs text-amber-700 leading-relaxed">
+            Prețurile afișate nu includ taxele portuare (PCH) și taxa de servicii
+            la bord (HSC). Acestea vor fi calculate și afișate transparent în
+            pasul de confirmare.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   if (taxeOnly) {
     if (!mandatorySC) return null;
     return (
       <div className="mb-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-base">ℹ️</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-amber-900 mb-2">
-                Taxe suplimentare plătite la bord
-              </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-amber-700">Hotel Service Charge:</span>
-                  <span className="text-xs font-bold text-amber-900">€{mandatorySC.adultAmount}/adult/noapte</span>
-                  <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-semibold">Obligatoriu</span>
-                </div>
-                {optionalSC && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-amber-700">Pachet opțional:</span>
-                    <span className="text-xs font-bold text-amber-900">€{optionalSC.adultAmount}/adult/noapte</span>
-                    <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-semibold">Opțional</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-[11px] text-amber-600 mt-2">
-                ✓ Taxele portuare sunt incluse în prețul cabinei afișat mai jos.
-              </p>
-            </div>
-          </div>
-        </div>
+        <TaxeBlock />
       </div>
     );
   }
 
   return (
     <div className="mb-6">
-      {/* Quick info cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         {quickInfoItems.map(({ icon, label, value, sub, highlight }) => (
           <div
@@ -98,14 +87,20 @@ export function CruiseQuickInfo({ cruise, hideTaxes, taxeOnly }: Props) {
             }`}
           >
             <span className="text-2xl block mb-1">{icon}</span>
-            <p className={`text-[11px] uppercase tracking-wide mb-0.5 ${highlight ? "text-blue-200" : "text-gray-400"}`}>
+            <p className={`text-[11px] uppercase tracking-wide mb-0.5 ${
+              highlight ? "text-blue-200" : "text-gray-400"
+            }`}>
               {label}
             </p>
-            <p className={`font-bold text-sm leading-tight ${highlight ? "text-white" : "text-gray-800"}`}>
+            <p className={`font-bold text-sm leading-tight ${
+              highlight ? "text-white" : "text-gray-800"
+            }`}>
               {value}
             </p>
             {sub && (
-              <p className={`text-[11px] mt-0.5 ${highlight ? "text-blue-200" : "text-gray-400"}`}>
+              <p className={`text-[11px] mt-0.5 ${
+                highlight ? "text-blue-200" : "text-gray-400"
+              }`}>
                 {sub}
               </p>
             )}
@@ -113,45 +108,8 @@ export function CruiseQuickInfo({ cruise, hideTaxes, taxeOnly }: Props) {
         ))}
       </div>
 
-      {/* Taxe la bord — afișat doar dacă hideTaxes nu e setat */}
-      {!hideTaxes && mandatorySC && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-base">ℹ️</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-amber-900 mb-2">
-                Taxe suplimentare plătite la bord
-              </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-amber-700">Hotel Service Charge:</span>
-                  <span className="text-xs font-bold text-amber-900">
-                    €{mandatorySC.adultAmount}/adult/noapte
-                  </span>
-                  <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-semibold">
-                    Obligatoriu
-                  </span>
-                </div>
-                {optionalSC && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-amber-700">Pachet opțional:</span>
-                    <span className="text-xs font-bold text-amber-900">
-                      €{optionalSC.adultAmount}/adult/noapte
-                    </span>
-                    <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-semibold">
-                      Opțional
-                    </span>
-                  </div>
-                )}
-              </div>
-              <p className="text-[11px] text-amber-600 mt-2">
-                ✓ Taxele portuare sunt incluse în prețul cabinei afișat mai jos.
-              </p>
-            </div>
-          </div>
-        </div>
+      {!hideTaxes && (
+        <TaxeBlock />
       )}
     </div>
   );
