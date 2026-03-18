@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { wsPost, checkWsError } from "@/lib/msc-workstream";
 
 export async function POST(req: NextRequest) {
-     try {
+   if (process.env.DISABLE_BOOKING === "true") {
+    return NextResponse.json(
+      { error: "Rezervările sunt temporar dezactivate. Te rugam sa ne contactezi" },
+      { status: 503 }
+    );
+  }
+  try {
     const {
       bookOrQuote = "Q",
       cruiseId,
