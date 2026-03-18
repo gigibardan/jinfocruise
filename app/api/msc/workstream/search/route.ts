@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const WS_BASE = process.env.MSC_WS_BASE!;
-const USER_ID   = "OTA3-RO000043";
-const AGENCY_ID = "RO000043";
-const PASSWORD  = "0cf43a5e90d824440ea9b809b153dcfb4d5960ecb450442c904c1d28b16d8aa0";
+const WS_BASE   = process.env.MSC_WS_BASE!;
+const USER_ID   = process.env.MSC_USER_ID!;
+const AGENCY_ID = process.env.MSC_AGENCY_ID!; 
+const PASSWORD  = process.env.MSC_PASSWORD!;
+const AGENT_ID  = process.env.MSC_AGENT_ID ?? "STAR"; 
 
 const HEADERS = {
   "Content-Type": "text/xml",
-  "UserId":   USER_ID,
+  "UserId": USER_ID,
   "AgencyId": AGENCY_ID,
   "Password": PASSWORD,
 };
@@ -24,7 +25,7 @@ function buildSearchXml(cruiseId: string, adults = "2", children = "0") {
   <OfficeCd>ROM</OfficeCd>
   <MktCd>ROM</MktCd>
   <CurrcyCd>EUR</CurrcyCd>
-  <AgentId>${AGENCY_ID}</AgentId>
+  <AgentId>${AGENT_ID}</AgentId>
   <NoofAdults>${adults}</NoofAdults>
   <NoofChildren>${children}</NoofChildren>
   <PaxType/>
@@ -37,6 +38,7 @@ function buildSearchXml(cruiseId: string, adults = "2", children = "0") {
   <Flight>N</Flight>
   <Sort>C</Sort>
   <PriceTypes>
+  <PriceType>WAVE</PriceType>
     <PriceType>EARLYBKG</PriceType>
     <PriceType>EBDRINK</PriceType>
     <PriceType>STANDARD</PriceType>
@@ -47,7 +49,7 @@ function buildSearchXml(cruiseId: string, adults = "2", children = "0") {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const cruiseId = searchParams.get("cruiseId") ?? "FA20260421BCNBCN";
-  const adults   = searchParams.get("adults")   ?? "2";
+  const adults = searchParams.get("adults") ?? "2";
   const children = searchParams.get("children") ?? "0";
 
   try {
