@@ -274,6 +274,9 @@ export default function CruiseDetailPage() {
                     serviceChargeCode={
                       cruise.serviceCharges.find((sc) => sc.standard)?.code ?? "SC2526ME"
                     }
+                    serviceChargePerAdult={
+                      cruise.serviceCharges.find((sc) => sc.standard)?.adultAmount ?? 0
+                    }
                     onClose={handleClearSelection}
                   />
                 )
@@ -317,7 +320,7 @@ export default function CruiseDetailPage() {
               }}
               selectedFare={null}
               selectedOcc="2A"
-              onClose={() => {}}
+              onClose={() => { }}
             />
           </div>
 

@@ -36,6 +36,7 @@ export interface BookingFlowProps {
   shipCode?: string;
   shipName?: string;
   serviceChargeCode?: string;
+  serviceChargePerAdult?: number;
   onClose: () => void;
 }
 
@@ -53,10 +54,11 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
     <div className="flex items-center gap-2 mb-6">
       {Array.from({ length: total }, (_, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${i + 1 < current ? "bg-green-500 text-white" :
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+            i + 1 < current ? "bg-green-500 text-white" :
             i + 1 === current ? "bg-blue-600 text-white" :
-              "bg-gray-100 text-gray-400"
-            }`}>
+            "bg-gray-100 text-gray-400"
+          }`}>
             {i + 1 < current ? "✓" : i + 1}
           </div>
           {i < total - 1 && (
@@ -70,6 +72,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 }
 
 // ─── Step 1: Cabin Selection ──────────────────────────────────────────────────
+
 function StepCabins({
   cruiseId, categoryCode, promotionCode, noAdults, onSelect,
 }: {
@@ -82,7 +85,6 @@ function StepCabins({
   const [cabins, setCabins] = useState<Cabin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  // Deck-uri expandate (implicit: primul deck expandat)
   const [expandedDecks, setExpandedDecks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -96,7 +98,6 @@ function StepCabins({
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || "Eroare");
         setCabins(data.cabins);
-        // Expandează primul deck automat
         const firstDeck = data.cabins[0]
           ? `Puntea ${data.cabins[0].deckNumber} — ${data.cabins[0].deckName}`
           : null;
@@ -127,7 +128,6 @@ function StepCabins({
     </div>
   );
 
-  // Grupare pe punți
   const byDeck: Record<string, Cabin[]> = {};
   cabins.forEach(c => {
     const key = `Puntea ${c.deckNumber} — ${c.deckName}`;
@@ -146,7 +146,6 @@ function StepCabins({
     });
   };
 
-  // Traduceri locație
   const translateLoc = (loc: string) => {
     const map: Record<string, string> = {
       "Aft Port": "Pupa — Babord",
@@ -177,7 +176,6 @@ function StepCabins({
     return map[bed] ?? bed;
   };
 
-  // Icon locație
   const locationIcon = (loc: string) => {
     const l = loc.toLowerCase();
     if (l.includes("aft") || l.includes("pupa")) return "🔷";
@@ -200,7 +198,6 @@ function StepCabins({
 
         return (
           <div key={deck} className="mb-5">
-            {/* Deck header */}
             <div className="flex items-center gap-2 mb-3">
               <div className="h-px flex-1 bg-gray-100" />
               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap px-2">
@@ -209,7 +206,6 @@ function StepCabins({
               <div className="h-px flex-1 bg-gray-100" />
             </div>
 
-            {/* Cabine grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {visible.map(cabin => (
                 <button
@@ -217,7 +213,6 @@ function StepCabins({
                   onClick={() => onSelect(cabin)}
                   className="text-left p-3.5 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:shadow-md transition-all group"
                 >
-                  {/* Numero cabina */}
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-bold text-gray-900 text-sm group-hover:text-blue-700 transition-colors">
                       Cabina {cabin.cabinNo}
@@ -228,13 +223,11 @@ function StepCabins({
                       </svg>
                     </span>
                   </div>
-                  {/* Locatie */}
                   {cabin.location && (
                     <p className="text-xs text-gray-600 mb-1 font-medium">
                       {locationIcon(cabin.location)} {translateLoc(cabin.location)}
                     </p>
                   )}
-                  {/* Paturi */}
                   {cabin.bedArrangement && (
                     <p className="text-xs text-gray-400">
                       🛏 {translateBed(cabin.bedArrangement)}
@@ -244,7 +237,6 @@ function StepCabins({
               ))}
             </div>
 
-            {/* Show more / less */}
             {hasMore && (
               <button
                 onClick={() => toggleDeck(deck)}
@@ -292,12 +284,12 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
     placeholder: string;
     full?: boolean;
   }[] = [
-      { field: "lastName", label: "Nume", type: "text", placeholder: "Popescu" },
-      { field: "firstName", label: "Prenume", type: "text", placeholder: "Ion" },
-      { field: "email", label: "Email", type: "email", placeholder: "email@exemplu.ro" },
-      { field: "phone", label: "Telefon", type: "tel", placeholder: "+40 700 000 000" },
-      { field: "dob", label: "Dată naștere", type: "date", placeholder: "", full: true },
-    ];
+    { field: "lastName",  label: "Nume",         type: "text",  placeholder: "Popescu" },
+    { field: "firstName", label: "Prenume",       type: "text",  placeholder: "Ion" },
+    { field: "email",     label: "Email",         type: "email", placeholder: "email@exemplu.ro" },
+    { field: "phone",     label: "Telefon",       type: "tel",   placeholder: "+40 700 000 000" },
+    { field: "dob",       label: "Dată naștere",  type: "date",  placeholder: "", full: true },
+  ];
 
   return (
     <div>
@@ -313,10 +305,11 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
               value={form[field]}
               onChange={set(field)}
               placeholder={placeholder}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors[field]
-                ? "border-red-400 bg-red-50"
-                : "border-gray-200 bg-gray-50 hover:border-gray-300"
-                }`}
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors[field]
+                  ? "border-red-400 bg-red-50"
+                  : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
             />
             {errors[field] && (
               <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
@@ -339,7 +332,8 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
 function StepConfirm({
   cruiseId, categoryCode, categoryName, promotionCode,
   packageCode, experienceCode, startDate, endDate,
-  noAdults, cabin, contact, pricePerPax, shipCode, shipName, serviceChargeCode,
+  noAdults, cabin, contact, pricePerPax, shipCode, shipName,
+  serviceChargeCode, serviceChargePerAdult,
   onConfirm, onBack,
 }: {
   cruiseId: string;
@@ -357,6 +351,7 @@ function StepConfirm({
   shipCode: string;
   shipName: string;
   serviceChargeCode: string;
+  serviceChargePerAdult: number;
   onConfirm: (bookingNo: string, gross: number) => void;
   onBack: () => void;
 }) {
@@ -393,6 +388,9 @@ function StepConfirm({
     }
     loadPrice();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const hscTotal = serviceChargePerAdult * noAdults;
+  const grandTotal = pricing ? pricing.totalGross + hscTotal : 0;
 
   const handleBook = async () => {
     setBooking(true);
@@ -451,11 +449,12 @@ function StepConfirm({
           cabinNo: cabin.cabinNo,
           isQuote: true,
           noAdults,
-          grossAmount: pricing?.totalGross ?? 0,
+          grossAmount: grandTotal,
           netAmount: pricing?.totalNet ?? 0,
           commission: pricing?.totalCommission ?? 0,
           portCharges: pricing?.portCharges ?? 0,
           depositDue: pricing?.depositDue ?? 0,
+          serviceChargeTotal: hscTotal,
           payMethod: bookData.booking?.payMethod ?? "AGENCY",
           leadFirstName: contact.firstName,
           leadLastName: contact.lastName,
@@ -478,8 +477,9 @@ function StepConfirm({
           categoryCode,
           cabinNo: cabin.cabinNo,
           noAdults,
-          grossAmount: pricing?.totalGross ?? 0,
+          grossAmount: grandTotal,
           portCharges: pricing?.portCharges ?? 0,
+          hscTotal,
           depositDue: pricing?.depositDue ?? 0,
           leadFirstName: contact.firstName,
           leadLastName: contact.lastName,
@@ -487,7 +487,7 @@ function StepConfirm({
         }),
       }).catch(e => console.error("Eroare email:", e));
 
-      onConfirm(bookData.bookingNo, pricing?.totalGross ?? 0);
+      onConfirm(bookData.bookingNo, grandTotal);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Eroare");
       setBooking(false);
@@ -503,17 +503,18 @@ function StepConfirm({
 
   return (
     <div>
+      {/* Sumar cabină + contact */}
       <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-2.5">
         <h3 className="font-semibold text-gray-700 text-sm mb-3">Sumar rezervare</h3>
         {[
-          { label: "Cabină", value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
-          { label: "Locație", value: cabin.location },
-          { label: "Paturi", value: cabin.bedArrangement },
-          { label: "Tip cabină", value: `${categoryName} (${categoryCode})` },
-          { label: "Pasageri", value: `${noAdults} adulți` },
-          { label: "Pasager principal", value: `${contact.firstName} ${contact.lastName}` },
-          { label: "Email", value: contact.email },
-          { label: "Telefon", value: contact.phone },
+          { label: "Cabină",           value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
+          { label: "Locație",          value: cabin.location },
+          { label: "Paturi",           value: cabin.bedArrangement },
+          { label: "Tip cabină",       value: `${categoryName} (${categoryCode})` },
+          { label: "Pasageri",         value: `${noAdults} adulți` },
+          { label: "Pasager principal",value: `${contact.firstName} ${contact.lastName}` },
+          { label: "Email",            value: contact.email },
+          { label: "Telefon",          value: contact.phone },
         ].map(({ label, value }) => (
           <div key={label} className="flex justify-between items-center text-sm">
             <span className="text-gray-500">{label}</span>
@@ -522,6 +523,7 @@ function StepConfirm({
         ))}
       </div>
 
+      {/* Detalii preț */}
       {pricing && (
         <div className="bg-blue-50 rounded-xl p-4 mb-5 space-y-2">
           <h3 className="font-semibold text-blue-800 text-sm mb-3">Detalii preț</h3>
@@ -535,13 +537,25 @@ function StepConfirm({
             <span className="text-blue-600">Taxe portuare</span>
             <span className="font-medium text-blue-800">{formatPrice(pricing.portCharges)}</span>
           </div>
+          {hscTotal > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-blue-600">
+                Taxa servicii la bord (HSC)
+                <span className="ml-1 text-xs text-blue-400">({formatPrice(serviceChargePerAdult)}/adult)</span>
+              </span>
+              <span className="font-medium text-blue-800">{formatPrice(hscTotal)}</span>
+            </div>
+          )}
           <div className="border-t border-blue-200 pt-2 flex justify-between">
             <span className="font-bold text-blue-800">Total de plată</span>
-            <span className="font-bold text-blue-900 text-lg">{formatPrice(pricing.totalGross)}</span>
+            <span className="font-bold text-blue-900 text-lg">{formatPrice(grandTotal)}</span>
           </div>
-          <p className="text-xs text-blue-400 mt-1">
-            * Taxa de serviciu la bord (~€72/adult) se plătește separat pe navă.
-          </p>
+          {pricing.depositDue > 0 && (
+            <div className="flex justify-between text-sm pt-1">
+              <span className="text-green-600 font-medium">Depozit acum</span>
+              <span className="font-bold text-green-700">{formatPrice(pricing.depositDue)}</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -628,6 +642,7 @@ export function BookingFlow({
   shipCode = "",
   shipName = "",
   serviceChargeCode = "SC2526ME",
+  serviceChargePerAdult = 0,
   onClose,
 }: BookingFlowProps) {
   const [step, setStep] = useState(1);
@@ -636,7 +651,6 @@ export function BookingFlow({
   const [bookingNo, setBookingNo] = useState("");
   const [grossAmount, setGrossAmount] = useState(0);
 
-  // Preferăm props din cruise-detail, fallback pe CATEGORY_PACKAGE_MAP
   const pkgInfo = getPackageInfo(categoryCode);
   const packageCode = pkgCodeProp || pkgInfo?.packageCode || "";
   const experienceCode = expCodeProp || pkgInfo?.experienceCode || "";
@@ -686,6 +700,7 @@ export function BookingFlow({
           shipCode={shipCode}
           shipName={shipName}
           serviceChargeCode={serviceChargeCode}
+          serviceChargePerAdult={serviceChargePerAdult}
           onConfirm={(bNo, gross) => {
             setBookingNo(bNo);
             setGrossAmount(gross);
