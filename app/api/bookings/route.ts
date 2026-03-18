@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         commission: commission,
         port_charges: portCharges,
         deposit_due: depositDue,
+        service_charge_total: body.serviceChargeTotal ?? null,
         pay_method: payMethod,
         lead_first_name: leadFirstName,
         lead_last_name: leadLastName,
