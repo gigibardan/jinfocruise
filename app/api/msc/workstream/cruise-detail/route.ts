@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// cruise-detail reutilizează /workstream/search care deja funcționează
-// și parsează XML-ul corect cu Itinerary > Cruises
-
 export interface WorkstreamCategory {
   category: string;
   categoryName: string;
@@ -47,13 +44,26 @@ const CATEGORY_NAMES: Record<string, string> = {
   IR1: "Interior Deluxe", IR2: "Interior Premium",
   OB: "Exterior Bella", OL1: "Exterior Deluxe",
   OL2: "Exterior Premium", OL3: "Exterior Superior",
+  OR1: "Exterior Deluxe 1", OR2: "Exterior Deluxe 2",
+  IS: "Interior Superior", VL1: "Vedere Laterală",
   BB: "Balcon Bella", BP: "Balcon Partial View",
   BL1: "Balcon Deluxe", BL2: "Balcon Premium",
   BL3: "Balcon Superior", BA: "Balcon Aurea",
+  BR1: "Balcon Deluxe 1", BR2: "Balcon Deluxe 2",
+  BR3: "Balcon Deluxe 3", BR4: "Balcon Deluxe 4",
+  PR1: "Balcon Premium 1", PR2: "Balcon Premium 2",
+  PR3: "Balcon Premium 3", PV: "Balcon Panoramic",
+  VLA: "Vedere Laterală Aurea", OS: "Exterior Superior",
+  BGA: "Balcon Grand Aurea",
   SRS: "Suite Royal", SLS: "Suite Deluxe",
   SL1: "Suite Premium", SX: "Suite Exclusive",
-  YC1: "YC Interior", YCP: "YC Premium",
-  YC2: "YC Deluxe", YCT: "YC Top",
+  SRP: "Suite Royal Plus", SLP: "Suite Loft Premium",
+  SXT: "Suite Exclusive Top", SXJ: "Suite Exclusive Junior",
+  YIN: "YC Interior", YC1: "YC Interior",
+  YCP: "YC Premium", YC2: "YC Deluxe",
+  YCT: "YC Top", YCD: "YC Deluxe",
+  YJD: "YC Junior Deluxe", YC3: "YC Suite 3",
+  YC4: "YC Suite 4",
 };
 
 const PRICE_TYPE_PRIORITY: Record<string, number> = {
@@ -61,6 +71,19 @@ const PRICE_TYPE_PRIORITY: Record<string, number> = {
   EARLYBKG: 4, EBDRINK: 5,
   HBDRINK: 6, HBSOFT: 7,
   BROKEN: 8, STANDARD: 9, LASTMIN: 10,
+};
+
+const PRICE_DESC_TO_TYPE: Record<string, string> = {
+  "BASIC FARE":           "WAVE",
+  "HAPPY DRINK SOFT":     "HBSOFT",
+  "HAPPY DRINK PREMIUM":  "HBDRINK",
+  "EARLY BOOKING":        "EARLYBKG",
+  "EARLY BOOKING DRINK":  "EBDRINK",
+  "WAVE PREMIUM":         "WAVEPREM",
+  "WAVE SOFT":            "WAVESOFT",
+  "STANDARD":             "STANDARD",
+  "LAST MINUTE":          "LASTMIN",
+  "BROKEN":               "BROKEN",
 };
 
 function decodeXml(str: string): string {
@@ -141,7 +164,9 @@ function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
     const firstPaxPrice = getNum(block, "FirstPaxPrice");
     if (firstPaxPrice === 0) continue;
 
-    const priceType = getVal(block, "PriceType");
+    const priceDesc = getVal(block, "PriceDesc");
+    const priceType = PRICE_DESC_TO_TYPE[priceDesc] ?? priceDesc;
+
     const occStr = getVal(block, "AllowedOccupancies");
     const allowedOccupancies = occStr
       ? occStr.split(",").map(Number).filter(Boolean)
@@ -170,7 +195,7 @@ function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
       category,
       categoryName: decodeXml(CATEGORY_NAMES[category] ?? category),
       priceCode: getVal(block, "PriceCode"),
-      priceDesc: getVal(block, "PriceDesc"),
+      priceDesc,
       priceType,
       packageCode,
       experienceCode,
