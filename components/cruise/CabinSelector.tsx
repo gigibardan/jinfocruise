@@ -138,10 +138,7 @@ function CabinCard({
             <p className="text-xl font-black leading-none" style={{ color: isYC ? "#8B6914" : typeColor.text }}>
               {formatPrice(cat.firstPaxPrice)}
             </p>
-            <p className="text-[11px] text-gray-400 mt-1">
-              Cabină 2 pers:{" "}
-              <span className="font-semibold text-gray-600">{formatPrice(cat.totalCabinPrice)}</span>
-            </p>
+           
           </div>
           {available && (
             <button
