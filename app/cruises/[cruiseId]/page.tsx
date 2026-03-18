@@ -10,6 +10,7 @@ import { CruiseHero } from "@/components/cruise/CruiseHero";
 import { CruiseQuickInfo } from "@/components/cruise/CruiseQuickInfo";
 import { CabinSelector } from "@/components/cruise/CabinSelector";
 import { ShipProfile } from "@/components/cruise/ShipProfile";
+import { OCCUPANCY_OPTIONS, type OccupancyOption } from "@/lib/msc-mappings";
 import type {
   WorkstreamCruiseDetail,
   WorkstreamCategory,
@@ -123,6 +124,44 @@ function SelectedCabinBar({
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
+function OccupancySelector({
+  category,
+  value,
+  onChange,
+}: {
+  category: WorkstreamCategory;
+  value: OccupancyOption;
+  onChange: (o: OccupancyOption) => void;
+}) {
+  // Filtrăm doar ocupanțele cu preț valid
+  // allowedOccupancies are numarul total de persoane permise
+  const maxPax = Math.max(...category.allowedOccupancies, 2);
+
+  const available = OCCUPANCY_OPTIONS.filter((o) => {
+    const total = o.noAdults + o.noChildren;
+    return total <= maxPax;
+  });
+
+  return (
+    <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 mb-4">
+      <span className="text-sm text-gray-500 whitespace-nowrap font-medium">👥 Ocupanță:</span>
+      <select
+        value={value.key}
+        onChange={(e) => {
+          const opt = OCCUPANCY_OPTIONS.find((o) => o.key === e.target.value);
+          if (opt) onChange(opt);
+        }}
+        className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        {available.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
 
 export default function CruiseDetailPage() {
   const { cruiseId } = useParams<{ cruiseId: string }>();
@@ -133,6 +172,9 @@ export default function CruiseDetailPage() {
   const [error, setError] = useState(false);
   const [selectedCat, setSelectedCat] = useState<WorkstreamCategory | null>(null);
   const [showFlow, setShowFlow] = useState(false);
+  const [occupancy, setOccupancy] = useState<OccupancyOption>(
+    OCCUPANCY_OPTIONS.find((o) => o.key === "2A")!
+  );
 
   useEffect(() => {
     if (!cruiseId) return;
@@ -240,6 +282,16 @@ export default function CruiseDetailPage() {
             </div>
 
             <div className="px-6 py-5">
+              {/* ── Selector ocupanță ── */}
+              {selectedCat && (
+                <div className="px-6 pt-4 pb-0">
+                  <OccupancySelector
+                    category={selectedCat}
+                    value={occupancy}
+                    onChange={setOccupancy}
+                  />
+                </div>
+              )}
               {!showFlow ? (
                 <div className="text-center py-10">
                   <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -261,11 +313,9 @@ export default function CruiseDetailPage() {
                     pricePerPax={selectedCat.firstPaxPrice}
                     startDate={cruise.sailingDate}
                     endDate={cruise.endDate}
-                    noAdults={
-                      selectedCat.allowedOccupancies.includes(2)
-                        ? 2
-                        : selectedCat.allowedOccupancies[0] ?? 2
-                    }
+                    noAdults={occupancy.noAdults}
+                    noChildren={occupancy.noChildren}
+                    childAges={occupancy.childAges}
                     packageCode={selectedCat.packageCode}
                     experienceCode={selectedCat.experienceCode}
                     priceCode={selectedCat.priceCode}

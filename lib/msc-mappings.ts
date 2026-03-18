@@ -578,3 +578,27 @@ export function getPortCharges(
 ): number {
   return parseFloat(gft?.adt ?? "0") || 0;
 }
+
+// ─── OCCUPANCY MAP ────────────────────────────────────────────────────────────
+
+export interface OccupancyOption {
+  key: string;
+  label: string;
+  noAdults: number;
+  noChildren: number;
+  childAges: string;
+}
+
+export const OCCUPANCY_OPTIONS: OccupancyOption[] = [
+  { key: "1A",     label: "1 Adult",                        noAdults: 1, noChildren: 0, childAges: "" },
+  { key: "2A",     label: "2 Adulți",                       noAdults: 2, noChildren: 0, childAges: "" },
+  { key: "3A",     label: "3 Adulți",                       noAdults: 3, noChildren: 0, childAges: "" },
+  { key: "4A",     label: "4 Adulți",                       noAdults: 4, noChildren: 0, childAges: "" },
+  { key: "1A1C",   label: "1 Adult + 1 Copil",              noAdults: 1, noChildren: 1, childAges: "10" },
+  { key: "1A1J",   label: "1 Adult + 1 Junior",             noAdults: 1, noChildren: 1, childAges: "14" },
+  { key: "2A1C",   label: "2 Adulți + 1 Copil",             noAdults: 2, noChildren: 1, childAges: "10" },
+  { key: "2A1J",   label: "2 Adulți + 1 Junior",            noAdults: 2, noChildren: 1, childAges: "14" },
+  { key: "2A2C",   label: "2 Adulți + 2 Copii",             noAdults: 2, noChildren: 2, childAges: "10,10" },
+  { key: "2A2J",   label: "2 Adulți + 2 Juniori",           noAdults: 2, noChildren: 2, childAges: "14,14" },
+  { key: "2A1C1J", label: "2 Adulți + 1 Copil + 1 Junior",  noAdults: 2, noChildren: 2, childAges: "10,14" },
+];

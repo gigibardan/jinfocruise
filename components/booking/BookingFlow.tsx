@@ -30,6 +30,8 @@ export interface BookingFlowProps {
   startDate: string;
   endDate: string;
   noAdults: number;
+  noChildren?: number;
+  childAges?: string;
   packageCode?: string;
   experienceCode?: string;
   priceCode?: string;
@@ -54,10 +56,11 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
     <div className="flex items-center gap-2 mb-6">
       {Array.from({ length: total }, (_, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${i + 1 < current ? "bg-green-500 text-white" :
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+            i + 1 < current ? "bg-green-500 text-white" :
             i + 1 === current ? "bg-blue-600 text-white" :
-              "bg-gray-100 text-gray-400"
-            }`}>
+            "bg-gray-100 text-gray-400"
+          }`}>
             {i + 1 < current ? "✓" : i + 1}
           </div>
           {i < total - 1 && (
@@ -283,12 +286,12 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
     placeholder: string;
     full?: boolean;
   }[] = [
-      { field: "lastName", label: "Nume", type: "text", placeholder: "Popescu" },
-      { field: "firstName", label: "Prenume", type: "text", placeholder: "Ion" },
-      { field: "email", label: "Email", type: "email", placeholder: "email@exemplu.ro" },
-      { field: "phone", label: "Telefon", type: "tel", placeholder: "+40 700 000 000" },
-      { field: "dob", label: "Dată naștere", type: "date", placeholder: "", full: true },
-    ];
+    { field: "lastName",  label: "Nume",        type: "text",  placeholder: "Popescu" },
+    { field: "firstName", label: "Prenume",      type: "text",  placeholder: "Ion" },
+    { field: "email",     label: "Email",        type: "email", placeholder: "email@exemplu.ro" },
+    { field: "phone",     label: "Telefon",      type: "tel",   placeholder: "+40 700 000 000" },
+    { field: "dob",       label: "Dată naștere", type: "date",  placeholder: "", full: true },
+  ];
 
   return (
     <div>
@@ -304,10 +307,11 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
               value={form[field]}
               onChange={set(field)}
               placeholder={placeholder}
-              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors[field]
-                ? "border-red-400 bg-red-50"
-                : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors[field]
+                  ? "border-red-400 bg-red-50"
+                  : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
             />
             {errors[field] && (
               <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
@@ -330,7 +334,8 @@ function StepContact({ onNext }: { onNext: (data: ContactData) => void }) {
 function StepConfirm({
   cruiseId, categoryCode, categoryName, promotionCode,
   packageCode, experienceCode, startDate, endDate,
-  noAdults, cabin, contact, pricePerPax, shipCode, shipName,
+  noAdults, noChildren = 0, childAges = "",
+  cabin, contact, pricePerPax, shipCode, shipName,
   serviceChargeCode, serviceChargePerAdult,
   onConfirm, onBack,
 }: {
@@ -343,6 +348,8 @@ function StepConfirm({
   startDate: string;
   endDate: string;
   noAdults: number;
+  noChildren?: number;
+  childAges?: string;
   cabin: Cabin;
   contact: ContactData;
   pricePerPax: number;
@@ -373,6 +380,7 @@ function StepConfirm({
           body: JSON.stringify({
             cruiseId, categoryCode, promotionCode, packageCode,
             experienceCode, startDate, endDate, noAdults,
+            noChildren, childAges,
           }),
         });
         const data = await res.json();
@@ -425,7 +433,8 @@ function StepConfirm({
           bookOrQuote: "Q",
           cruiseId, categoryCode, cabinNo: cabin.cabinNo,
           promotionCode, packageCode, experienceCode,
-          startDate, endDate, noAdults, serviceChargeCode,
+          startDate, endDate, noAdults, noChildren, childAges,
+          serviceChargeCode,
           passengers: [{
             firstName: contact.firstName,
             lastName: contact.lastName,
@@ -512,14 +521,14 @@ function StepConfirm({
       <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-2.5">
         <h3 className="font-semibold text-gray-700 text-sm mb-3">Sumar rezervare</h3>
         {[
-          { label: "Cabină", value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
-          { label: "Locație", value: cabin.location },
-          { label: "Paturi", value: cabin.bedArrangement },
-          { label: "Tip cabină", value: `${categoryName} (${categoryCode})` },
-          { label: "Pasageri", value: `${noAdults} adulți` },
+          { label: "Cabină",            value: `Nr. ${cabin.cabinNo} — ${cabin.deckName}` },
+          { label: "Locație",           value: cabin.location },
+          { label: "Paturi",            value: cabin.bedArrangement },
+          { label: "Tip cabină",        value: `${categoryName} (${categoryCode})` },
+          { label: "Pasageri",          value: `${noAdults} adulți${noChildren ? ` + ${noChildren} copii` : ""}` },
           { label: "Pasager principal", value: `${contact.firstName} ${contact.lastName}` },
-          { label: "Email", value: contact.email },
-          { label: "Telefon", value: contact.phone },
+          { label: "Email",             value: contact.email },
+          { label: "Telefon",           value: contact.phone },
         ].map(({ label, value }) => (
           <div key={label} className="flex justify-between items-center text-sm">
             <span className="text-gray-500">{label}</span>
@@ -533,7 +542,7 @@ function StepConfirm({
         <div className="bg-blue-50 rounded-xl p-4 mb-5 space-y-2">
           <h3 className="font-semibold text-blue-800 text-sm mb-3">Detalii preț</h3>
           <div className="flex justify-between text-sm">
-            <span className="text-blue-600">Tarif cabină ({noAdults} adulți)</span>
+            <span className="text-blue-600">Tarif cabină ({noAdults} adulți{noChildren ? ` + ${noChildren} copii` : ""})</span>
             <span className="font-medium text-blue-800">
               {formatPrice(hscAlreadyIncluded
                 ? pricing.totalGross - pricing.portCharges - hscTotal
@@ -642,7 +651,8 @@ function StepSuccess({
 
 export function BookingFlow({
   cruiseId, categoryCode, categoryName,
-  pricePerPax, startDate, endDate, noAdults,
+  pricePerPax, startDate, endDate,
+  noAdults, noChildren = 0, childAges = "",
   packageCode: pkgCodeProp,
   experienceCode: expCodeProp,
   priceCode: priceCodeProp,
@@ -701,6 +711,8 @@ export function BookingFlow({
           startDate={startDate}
           endDate={endDate}
           noAdults={noAdults}
+          noChildren={noChildren}
+          childAges={childAges}
           cabin={selectedCabin}
           contact={contact}
           pricePerPax={pricePerPax}
