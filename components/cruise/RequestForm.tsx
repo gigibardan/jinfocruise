@@ -195,7 +195,7 @@ export function RequestForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ion Popescu"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
         <div>
@@ -207,7 +207,7 @@ export function RequestForm({
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+40 7xx xxx xxx"
             type="tel"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
@@ -221,7 +221,7 @@ export function RequestForm({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="email@exemplu.ro"
           type="email"
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
 
@@ -234,7 +234,7 @@ export function RequestForm({
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Ex: Doresc o cabină la etaj superior, preferabil cu vedere frontală..."
           rows={3}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
         />
       </div>
 
