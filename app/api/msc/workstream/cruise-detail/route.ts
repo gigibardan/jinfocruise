@@ -56,6 +56,13 @@ const CATEGORY_NAMES: Record<string, string> = {
   YC2: "YC Deluxe", YCT: "YC Top",
 };
 
+const PRICE_TYPE_PRIORITY: Record<string, number> = {
+  WAVEPREM: 1, WAVE: 2, WAVESOFT: 3,
+  EARLYBKG: 4, EBDRINK: 5,
+  HBDRINK: 6, HBSOFT: 7,
+  BROKEN: 8, STANDARD: 9, LASTMIN: 10,
+};
+
 function decodeXml(str: string): string {
   return str
     .replace(/&amp;/g, "&")
@@ -78,7 +85,6 @@ function getInt(xml: string, tag: string): number {
 }
 
 function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
-  // Structura confirmată: <Itinerary><Cruises>...</Cruises></Itinerary>
   const itineraryBlock = xmlResponse.match(/<Itinerary>([\s\S]*?)<\/Itinerary>/)?.[1];
   if (!itineraryBlock) return null;
 
@@ -141,7 +147,6 @@ function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
       ? occStr.split(",").map(Number).filter(Boolean)
       : [];
 
-    // PackageCode + ExperienceCode
     let packageCode = "";
     let experienceCode = "";
     let experienceName = "";
@@ -183,11 +188,9 @@ function parseXml(xmlResponse: string): WorkstreamCruiseDetail | null {
     if (!existing) {
       categoryMap.set(category, newCat);
     } else {
-      const newIsPromo = priceType === "EARLYBKG" || priceType === "EBDRINK";
-      const oldIsPromo = existing.priceType === "EARLYBKG" || existing.priceType === "EBDRINK";
-      if (oldIsPromo && !newIsPromo) {
-        categoryMap.set(category, newCat);
-      } else if (newIsPromo === oldIsPromo && firstPaxPrice < existing.firstPaxPrice) {
+      const newPrio = PRICE_TYPE_PRIORITY[priceType] ?? 99;
+      const oldPrio = PRICE_TYPE_PRIORITY[existing.priceType] ?? 99;
+      if (newPrio < oldPrio || (newPrio === oldPrio && firstPaxPrice < existing.firstPaxPrice)) {
         categoryMap.set(category, newCat);
       }
     }
@@ -206,7 +209,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "cruiseId este obligatoriu" }, { status: 400 });
     }
 
-    // Apelăm /workstream/search care deja funcționează
     const baseUrl = req.headers.get("host")?.includes("localhost")
       ? "http://localhost:3000"
       : `https://${req.headers.get("host")}`;
