@@ -59,30 +59,41 @@ export function Header() {
 
   return (
     <>
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
+
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white shadow-md border-b border-gray-100"
-            : "bg-white/95 backdrop-blur-sm border-b border-gray-100"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white py-1 ${
+          scrolled ? "shadow-md" : "shadow-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
 
             {/* ── Logo ── */}
-            <Link href="/" className="flex items-center flex-shrink-0">
+            <Link href="/" className="group relative flex items-center flex-shrink-0 overflow-hidden rounded-lg">
               <Image
                 src="/images/logojinfocruise.png"
-                alt="JinfoCruise — Croaziere MSC România"
-                width={160}
-                height={42}
-                className="h-10 w-auto object-contain"
+                alt="JinfoCruise"
+                width={220}
+                height={60}
+                className="h-12 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
                 priority
               />
+              {/* Shimmer la hover */}
+              <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer pointer-events-none">
+                <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12" />
+              </div>
             </Link>
 
             {/* ── Desktop nav ── */}
-            <nav className="hidden lg:flex items-center gap-0.5">
+            <nav className="hidden lg:flex items-center gap-1">
               {NAV_ITEMS.map((item) => (
                 <div
                   key={item.label}
@@ -149,9 +160,20 @@ export function Header() {
                   )}
                 </div>
               ))}
+
+              {/* CTA desktop */}
+              <Link
+                href="/cruises/search"
+                className="ml-2 flex items-center gap-1.5 bg-[#185FA5] hover:bg-[#144e8a] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Caută
+              </Link>
             </nav>
 
-            {/* ── Mobile burger only ── */}
+            {/* ── Mobile burger ── */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
@@ -243,7 +265,7 @@ export function Header() {
         )}
       </header>
 
-      {/* Spacer pentru fixed header */}
+      {/* Spacer fix — mereu h-16 cât headerul */}
       <div className="h-16" />
     </>
   );

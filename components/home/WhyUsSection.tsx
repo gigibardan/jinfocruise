@@ -1,109 +1,187 @@
+"use client";
+
+import RO from 'country-flag-icons/react/3x2/RO';
+
 export function WhyUsSection() {
   const features = [
     {
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
-          <circle cx="24" cy="24" r="22" stroke="#185FA5" strokeWidth="2" fill="#EBF4FB"/>
-          <path d="M16 24l6 6 10-12" stroke="#185FA5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      emoji: "💰",
       title: "Prețuri Garantate",
       description: "Acces direct la sistemul MSC în timp real. Nicio taxă ascunsă, nicio surpriză neplăcută la plată.",
+      accent: "#60A5FA",
     },
     {
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
-          <circle cx="24" cy="24" r="22" stroke="#185FA5" strokeWidth="2" fill="#EBF4FB"/>
-          <path d="M24 14v6m0 0l-4 4m4-4l4 4M14 34h20" stroke="#185FA5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="24" cy="34" r="2.5" fill="#185FA5"/>
-        </svg>
-      ),
+      emoji: <RO className="w-8 h-6 rounded-sm shadow-sm" />,
       title: "Suport în Română",
       description: "Echipă dedicată care vorbește română fluent. Te ghidăm de la selecție până la îmbarcare.",
+      accent: "#34D399",
     },
     {
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
-          <circle cx="24" cy="24" r="22" stroke="#185FA5" strokeWidth="2" fill="#EBF4FB"/>
-          <path d="M17 21c0-3.866 3.134-7 7-7s7 3.134 7 7c0 5-7 13-7 13s-7-8-7-13z" stroke="#185FA5" strokeWidth="2.5" strokeLinejoin="round"/>
-          <circle cx="24" cy="21" r="2.5" fill="#185FA5"/>
-        </svg>
-      ),
-      title: "Specialist MSC Romania",
-      description: "Peste 10 ani de experiență. Suntem partener autorizat MSC Cruises cu acces la cele mai bune oferte.",
+      emoji: "🏆",
+      title: "Specialist MSC România",
+      description: "Partener autorizat MSC Cruises cu acces la cele mai bune oferte și tarife exclusive.",
+      accent: "#FBBF24",
     },
     {
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
-          <circle cx="24" cy="24" r="22" stroke="#185FA5" strokeWidth="2" fill="#EBF4FB"/>
-          <path d="M15 30V20a2 2 0 012-2h14a2 2 0 012 2v10M12 30h24" stroke="#185FA5" strokeWidth="2.5" strokeLinecap="round"/>
-          <path d="M20 24h8" stroke="#185FA5" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-      ),
+      emoji: "⚡",
       title: "Rezervare Simplă",
       description: "Proces 100% online sau la telefon. Confirmare imediată, documente digitale, zero birocrație.",
+      accent: "#A78BFA",
     },
   ];
 
+  const stats = [
+    { value: "500+", label: "Plecări disponibile", icon: "🚢" },
+    { value: "33",   label: "Nave MSC în flotă",   icon: "⚓" },
+    { value: "100%", label: "Satisfacție clienți", icon: "⭐" },
+    { value: "MSC",  label: "Partener Autorizat", icon: "🤝" },
+  ];
+
   return (
-    <section className="py-16 px-4 bg-[#003366] relative overflow-hidden">
-      {/* Decorative wave top */}
+    <section className="relative overflow-hidden" style={{ background: "linear-gradient(160deg, #001f4d 0%, #003366 50%, #003580 100%)" }}>
+
+      {/* Val sus */}
       <div className="absolute top-0 left-0 right-0 overflow-hidden leading-none">
-        <svg viewBox="0 0 1440 40" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,20 C360,40 1080,0 1440,20 L1440,0 L0,0 Z"/>
+        <svg viewBox="0 0 1440 48" fill="white" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style={{ display: "block" }}>
+          <path d="M0,24 C360,48 1080,0 1440,24 L1440,0 L0,0 Z"/>
         </svg>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-6">
+      {/* Particule decorative */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[
+          { top: "15%", left: "8%",  size: 180, opacity: 0.04 },
+          { top: "55%", left: "75%", size: 260, opacity: 0.03 },
+          { top: "25%", left: "55%", size: 140, opacity: 0.04 },
+        ].map((c, i) => (
+          <div key={i} className="absolute rounded-full"
+            style={{
+              top: c.top, left: c.left,
+              width: c.size, height: c.size,
+              background: "radial-gradient(circle, rgba(96,165,250,1) 0%, transparent 70%)",
+              opacity: c.opacity,
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-16 pb-20">
+
         {/* Header */}
-        <div className="text-center mb-12">
-          <p className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-2">De ce să ne alegi</p>
-          <h2 className="text-3xl md:text-4xl font-black text-white">
-            Croaziere MSC cu <span className="text-blue-300">Jinfo Tours</span>
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 mb-4"
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: "999px",
+              padding: "6px 18px",
+            }}
+          >
+            <span className="text-blue-300 text-xs font-bold uppercase tracking-widest">De ce să ne alegi</span>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-3">
+            Croaziere MSC cu{" "}
+            <span style={{
+              background: "linear-gradient(90deg, #7DD3FC, #60A5FA)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>
+              Jinfo Tours
+            </span>
           </h2>
-          <p className="text-blue-200/70 mt-3 max-w-xl mx-auto text-sm">
-            Partenerul tău de încredere pentru cele mai frumoase vacanțe pe mare, cu suport complet în România.
+          <p className="text-blue-200/70 max-w-lg mx-auto text-sm leading-relaxed">
+            Partenerul tău de încredere pentru cele mai frumoase vacanțe pe mare,
+            cu suport complet în România.
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Cards glassmorphism */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
           {features.map((f) => (
             <div
               key={f.title}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+              className="group relative rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1"
+              style={{
+                background: "rgba(255,255,255,0.07)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(255,255,255,0.13)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.12)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = `${f.accent}55`;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 40px rgba(0,0,0,0.25), 0 0 0 1px ${f.accent}33`;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.07)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.13)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(0,0,0,0.2)";
+              }}
             >
-              <div className="mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">
-                {f.icon}
+              {/* Accent line top */}
+              <div className="absolute top-0 left-6 right-6 h-0.5 rounded-full opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+                style={{ background: `linear-gradient(90deg, transparent, ${f.accent}, transparent)` }}
+              />
+
+              {/* Icon */}
+              <div className="mb-4 transition-transform duration-300 group-hover:scale-110 inline-flex items-center justify-center" style={{ minHeight: "2.5rem" }}>
+                {typeof f.emoji === "string"
+                  ? <span className="text-4xl">{f.emoji}</span>
+                  : f.emoji
+                }
               </div>
-              <h3 className="text-white font-bold text-base mb-2">{f.title}</h3>
-              <p className="text-blue-200/70 text-sm leading-relaxed">{f.description}</p>
+
+              <h3 className="text-white font-bold text-base mb-2 leading-snug">{f.title}</h3>
+              <p className="text-blue-200/65 text-sm leading-relaxed">{f.description}</p>
             </div>
           ))}
         </div>
 
         {/* Stats bar */}
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-white/10 pt-10">
-          {[
-            { value: "10+", label: "Ani de experiență" },
-            { value: "500+", label: "Plecări disponibile" },
-            { value: "33", label: "Nave MSC" },
-            { value: "100%", label: "Satisfacție clienți" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl md:text-4xl font-black text-blue-300 mb-1">{stat.value}</div>
-              <div className="text-blue-200/60 text-xs uppercase tracking-wider">{stat.label}</div>
+        <div
+          className="rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-0 overflow-hidden"
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {stats.map((stat, i) => (
+            <div
+              key={stat.label}
+              className="text-center py-7 px-4 relative"
+              style={{
+                borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
+              }}
+            >
+              <div className="text-2xl mb-1">{stat.icon}</div>
+              <div className="text-3xl md:text-4xl font-black mb-1"
+                style={{
+                  background: "linear-gradient(135deg, #ffffff, #7DD3FC)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {stat.value}
+              </div>
+              <div className="text-blue-200/55 text-xs uppercase tracking-wider">{stat.label}</div>
             </div>
           ))}
         </div>
+
       </div>
 
-      {/* Decorative wave bottom */}
+      {/* Val jos */}
       <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none rotate-180">
-        <svg viewBox="0 0 1440 40" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,20 C360,40 1080,0 1440,20 L1440,0 L0,0 Z"/>
+        <svg viewBox="0 0 1440 48" fill="white" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style={{ display: "block" }}>
+          <path d="M0,24 C360,48 1080,0 1440,24 L1440,0 L0,0 Z"/>
         </svg>
       </div>
+
     </section>
   );
 }
